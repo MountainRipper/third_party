@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+_download
+_build_temp
+targets
