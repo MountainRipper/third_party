@@ -1,0 +1,45 @@
+# this one is important
+SET(CMAKE_SYSTEM_NAME Linux)
+#this one not so much
+SET(CMAKE_SYSTEM_VERSION 1)
+
+SET(CMAKE_HOST_SYSTEM_PROCESSOR x86_64)
+SET(USER_TARGET_SYSTEM_PROCESSOR armv7a)
+
+SET(SYSROOT "__CROSS_SYSROOT_DIR__")
+SET(GCCDIR "__CROSS_GCC_DIR__")
+include_directories(/usr/include)
+# specify the cross compiler
+SET(CMAKE_C_COMPILER ${GCCDIR}/bin/arm-linux-gnueabihf-gcc)
+SET(CMAKE_CXX_COMPILER ${GCCDIR}/bin/arm-linux-gnueabihf-g++)
+
+MACRO(SUBDIRLIST result curdir)
+  FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
+  SET(dirlist "")
+  FOREACH(child ${children})
+    IF(IS_DIRECTORY ${curdir}/${child})
+      LIST(APPEND dirlist ${child})
+    ENDIF()
+  ENDFOREACH()
+  SET(${result} ${dirlist})
+ENDMACRO()
+
+
+#SUBDIRLIST(SUBDIRS "${QT5DIR}/lib/cmake")
+#FOREACH(subdir ${SUBDIRS})
+#  set(${subdir}_DIR "${QT5DIR}/lib/cmake/${subdir}")
+#  #message("SET ${subdir}_DIR to ${${subdir}_DIR}")
+#ENDFOREACH()
+
+
+# where is the target environment
+SET(CMAKE_FIND_ROOT_PATH  ${SYSROOT})
+SET(CMAKE_SYSROOT ${SYSROOT})
+
+# search for programs in the build host directories
+SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+# for libraries and headers in the target directories
+SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+# end of the file

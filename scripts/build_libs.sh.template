@@ -1,0 +1,69 @@
+#!/bin/bash
+BUILD_PARAM=$1
+
+if [ $BUILD_PARAM = 'full' ] ; then
+	ENABLED_COMPONENTS=""
+elif [ $BUILD_PARAM = 'mini' ] ; then
+	ENABLED_COMPONENTS=""
+elif [ $BUILD_PARAM = 'tiny' ] ; then
+	ENABLED_COMPONENTS=""
+else
+  echo "ERROR: LINUX BUILD BAD MATCH CROSS COMPILE TARGET:$MR_TARGET_ARCH HOST: $MR_HOST_ARCH"
+  return -1
+fi
+    
+CONFIGURE_PARAM="$ENABLED_COMPONENTS --prefix=$MR_TARGET_PREFIX"
+
+function build(){
+  if [ $MR_TARGET_OS = 'linux' ] ; then
+  
+      CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-shared"
+      if [ $MR_CROSS_COMPILE = true ] ;then
+      	CONFIGURE_PARAM="$CONFIGURE_PARAM --cross-prefix=$MR_CROSS_PREFIX"
+      fi
+      
+      if [ $MR_TARGET_ARCH = 'x86_64' ] ; then
+         ./configure $CONFIGURE_PARAM
+      elif [ $MR_TARGET_ARCH = 'x86' ] ; then
+
+      elif [ $MR_TARGET_ARCH = 'aarch64' ] ; then
+
+      elif [ $MR_TARGET_ARCH = 'armv7a' ] ; then
+
+      else
+          echo "ERROR: LINUX BUILD BAD MATCH CROSS COMPILE TARGET:$MR_TARGET_ARCH HOST: $MR_HOST_ARCH"
+          return -1
+      fi
+      
+      make
+      make install
+  elif [ $MR_TARGET_OS = 'android' ] ;then
+      echo 'Build luajit for Android'
+      if [ $MR_TARGET_ARCH = 'x86_64' ] ; then
+          
+      elif [ $MR_TARGET_ARCH = 'x86' ] ; then
+
+      elif [ $MR_TARGET_ARCH = 'aarch64' ] ; then
+
+      elif [ $MR_TARGET_ARCH = 'armv7a' ] ; then
+
+      else
+          echo "ERROR: ANDROID BUILD BAD MATCH CROSS COMPILE TARGET:$MR_TARGET_ARCH HOST: $MR_HOST_ARCH"
+          return -1
+      fi
+      make
+      make install
+  elif [ $MR_TARGET_OS = 'darwin' ] ;then
+    echo 'Build luajit for macOS'
+  elif [ $MR_TARGET_OS = 'ios' ] ;then
+    echo'Build luajit for iOS'
+  elif [ $MR_TARGET_OS = 'bsd' ] ;then
+    echo 'Build luajit for BSD'
+  fi
+
+}
+
+build
+make install
+
+
