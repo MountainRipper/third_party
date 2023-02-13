@@ -1,5 +1,6 @@
 #ifndef LUA_EXPRESSION_H
 #define LUA_EXPRESSION_H
+#include <any>
 #include <stdint.h>
 #include <string>
 #include <memory>
@@ -14,84 +15,97 @@
 #define NULL_LUA_FUNCTION   sol::function()
 #define NULL_LUA_TABLE      sol::table()
 
+#define ANY2S64(V)      std::any_cast<int64_t>(V)
+#define ANY2U64(V)      std::any_cast<uint64_t>(V)
+#define ANY2F64(V)      std::any_cast<double>(V)
+#define ANY2BOOL(V)     std::any_cast<bool>(V)
+#define ANY2STR(V)      std::any_cast<const std::string&>(V)
+#define ANY2F64ARR(V)   std::any_cast<const std::vector<double>&>(V)
+#define ANY2STRARR(V)   std::any_cast<const std::vector<std::string>&>(V)
+#define ANY2PTR(V)      std::any_cast<void*>(V)
+#define ANY2LUAFUN(V)   std::any_cast<sol::function>(V)
+#define ANY2LUATABLE(V) std::any_cast<sol::table>(V)
+
 namespace sol {
 
 enum NativeValueType : int32_t{
-    kNumberValue,
-    kNumberVectorValue,
-    kStringValue,
-    kStringVectorValue,
-    kBoolValue,
-    kPointerValue,
-    kFunctionValue,
-    kTableValue,
+    kNumber,
+    kString,
+    kBool,
+    kNumberArray,
+    kStringArray,
+    kPointer,
+    kFunction,
+    kTable,
 };
 
 struct NativeValue{    
     NativeValue(){}
-    NativeValue(double v,bool read_only = false){
-        type_ = kNumberValue;
+    NativeValue(double v,const std::string& describe = "",bool read_only = false){
+        type_ = kNumber;
+        describe_ = describe;
         read_only_ = read_only;
-        number_value_ = v;
+        value_ = v;
     }
-    NativeValue(int v,bool read_only = false){
-        type_ = kNumberValue;
-        read_only_ = read_only;
-        number_value_ = v;
+    NativeValue(int v,const std::string& describe = "",bool read_only = false)
+        :NativeValue(double(v),describe,read_only){
+        //NOTE: ALL NUMBER USE DOUBLE TYPE
     }
-    NativeValue(int64_t v,bool read_only = false){
-        type_ = kNumberValue;
-        read_only_ = read_only;
-        number_value_ = v;
+    NativeValue(int64_t v,const std::string& describe = "",bool read_only = false)
+        :NativeValue(double(v),describe,read_only){
+        //NOTE: ALL NUMBER USE DOUBLE TYPE
     }
-    NativeValue(bool v,bool read_only = false){
-        type_ = kBoolValue;
+    NativeValue(bool v,const std::string& describe = "",bool read_only = false){
+        type_ = kBool;
+        describe_ = describe;
         read_only_ = read_only;
-        number_value_ = v;
+        value_ = v;
     }
-    NativeValue(void* v,bool read_only = false){
-        type_ = kPointerValue;
+    NativeValue(void* v,const std::string& describe = "",bool read_only = false){
+        type_ = kPointer;
+        describe_ = describe;
         read_only_ = read_only;
-        pointer_value_ = v;
+        value_ = v;
     }
-    NativeValue(const std::vector<double>& v,bool read_only = false){
-        type_ = kNumberVectorValue;
+    NativeValue(const std::vector<double>& v,const std::string& describe = "",bool read_only = false){
+        type_ = kNumberArray;
+        describe_ = describe;
         read_only_ = read_only;
-        number_vector_ = v;
+        value_ = v;
     }
-    NativeValue(const std::vector<std::string>& v,bool read_only = false){
-        type_ = kStringVectorValue;
+    NativeValue(const std::string& v,const std::string& describe = "",bool read_only = false){
+        type_ = kString;
+        describe_ = describe;
         read_only_ = read_only;
-        string_vector_ = v;
+        value_ = v;
     }
-    NativeValue(const std::string& v,bool read_only = false){
-        type_ = kStringValue;
+    NativeValue(const char* v,const std::string& describe = "",bool read_only = false){
+        type_ = kString;
+        describe_ = describe;
         read_only_ = read_only;
-        string_value_ = v;
+        value_ = v;
     }
-    NativeValue(const char* v,bool read_only = false){
-        type_ = kStringValue;
+    NativeValue(const std::vector<std::string>& v,const std::string& describe = "",bool read_only = false){
+        type_ = kStringArray;
+        describe_ = describe;
         read_only_ = read_only;
-        string_value_ = v;
+        value_ = v;
     }
-    NativeValue(sol::function v,bool read_only = false){
-        type_ = kFunctionValue;
+    NativeValue(sol::function v,const std::string& describe = "",bool read_only = false){
+        type_ = kFunction;
+        describe_ = describe;
         read_only_ = read_only;
-        function_value_ = v;
+        value_ = v;
     }
-    NativeValue(sol::table v,bool read_only = false){
-        type_ = kTableValue;
+    NativeValue(sol::table v,const std::string& describe = "",bool read_only = false){
+        type_ = kTable;
+        describe_ = describe;
         read_only_ = read_only;
-        table_value_ = v;
+        value_ = v;
     }
     NativeValue(const NativeValue& v){
         type_ = v.type_;
-        number_value_ = v.number_value_;
-        number_vector_ = v.number_vector_;
-        string_value_ = v.string_value_;
-        function_value_ = v.function_value_;
-        table_value_ = v.table_value_;
-        value_changed_  = v.value_changed_;
+        value_ = v.value_;
         describe_ = v.describe_;
         read_only_ = v.read_only_;
     }
@@ -100,70 +114,65 @@ struct NativeValue{
     {
         if(type_ != v.type_)
             return;
-        number_value_ = v.number_value_;
-        number_vector_ = v.number_vector_;
-        string_value_ = v.string_value_;
-        function_value_ = v.function_value_;
-        table_value_ = v.table_value_;
-        value_changed_  = v.value_changed_;
+        value_ = v.value_;
         describe_ = v.describe_;
     }
 
     void from_double(double v){
-        type_ = kNumberValue;
-        value_changed_ = (number_value_ != v);
-        number_value_ = v;
+        type_ = kNumber;
+        value_changed_ = (ANY2F64(value_) != v);
+        value_ = v;
     }
     void from_bool(bool v){
-        type_ = kBoolValue;
-        value_changed_ = (((bool)number_value_) != v);
-        number_value_ = (bool)v;
+        type_ = kBool;
+        value_changed_ = (ANY2BOOL(value_) != v);
+        value_ = v;
     }
 
     void from_vector(const std::vector<double>& v){
-        type_ = kNumberVectorValue;
-        //value_changed_ = (number_vector_ != v);
-        value_changed_ = true;
-        number_vector_ = v;
+        type_ = kNumberArray;
+        value_changed_ = (ANY2F64ARR(value_) != v);
+        value_ = v;
     }
     void from_vector(const std::vector<std::string>& v){
-        type_ = kStringVectorValue;
-        //value_changed_ = (string_vector_ != v);
-        value_changed_ = true;
-        string_vector_ = v;
+        type_ = kStringArray;
+        value_changed_ = (ANY2STRARR(value_) != v);
+        value_ = v;
     }
     void from_string(const std::string& v){
-        type_ = kStringValue;
-        value_changed_ = (string_value_ != v);
-        string_value_ = v;
+        type_ = kString;
+        value_changed_ = (ANY2STR(value_) != v);
+        value_ = v;
     }
     void from_pointer(void* v){
-        type_ = kPointerValue;
-        value_changed_ = (pointer_value_ != v);
-        pointer_value_ = v;
+        type_ = kPointer;
+        value_changed_ = (ANY2PTR(value_) != v);
+        value_ = v;
     }
     void from_function(sol::function v){
-        type_ = kFunctionValue;
-        if(v.valid() && function_value_.valid())
-            value_changed_ = sol::operator==(function_value_,v);
-        else if(v.valid() != function_value_.valid())
+        type_ = kFunction;
+        auto fun = ANY2LUAFUN(value_);
+        if(v.valid() && fun.valid())
+            value_changed_ = sol::operator==(fun,v);
+        else if(v.valid() != fun.valid())
             value_changed_ = true;
         else
             value_changed_ = false;
         if(value_changed_)
-            function_value_ = v;
+            value_ = v;
     }
 
     void from_function(sol::table v){
-        type_ = kTableValue;
-        if(v.valid() && function_value_.valid())
-            value_changed_ = sol::operator==(table_value_,v);
-        else if(v.valid() != table_value_.valid())
+        type_ = kTable;
+        auto tb = ANY2LUATABLE(value_);
+        if(v.valid() && tb.valid())
+            value_changed_ = sol::operator==(tb,v);
+        else if(v.valid() != tb.valid())
             value_changed_ = true;
         else
             value_changed_ = false;
         if(value_changed_)
-            table_value_ = v;
+            value_ = v;
     }
 
     void operator=(double v){
@@ -201,35 +210,68 @@ struct NativeValue{
         set_lua_value_with_check(value);
     }
 
-    operator double(){
-        return number_value_;
+    operator double() const{
+        return ANY2F64(value_);
     }
-    operator int(){
-        return number_value_;
+    operator int() const{
+        return ANY2F64(value_);
     }
-    operator int64_t(){
-        return number_value_;
+    operator int64_t() const{
+        return ANY2F64(value_);
     }
-    operator bool(){
-        return (bool)number_value_;
+    operator bool() const{
+        return ANY2BOOL(value_);
     }
-    operator const std::vector<double>&(){
-        return number_vector_;
+    operator const std::string&() const{
+        const std::string& s = ANY2STR(value_);
+        return s;
     }
-    operator const std::string&(){
-        return string_value_;
+    operator const std::vector<double>&() const{
+        return ANY2F64ARR(value_);
     }
-    operator const std::vector<std::string>&(){
-        return string_vector_;
+    operator const std::vector<std::string>&() const{
+        return ANY2STRARR(value_);
     }
-    operator void* (){
-        return pointer_value_;
+    operator void* () const{
+        return ANY2PTR(value_);
     }
-    operator sol::function(){
-        return function_value_;
+    operator sol::function() const{
+        return ANY2LUAFUN(value_);
     }
-    operator sol::table(){
-        return table_value_;
+    operator sol::table() const{
+        return ANY2LUATABLE(value_);
+    }
+
+    double as_double() const{
+        return ANY2F64(value_);
+    }
+    int as_int() const{
+        return ANY2F64(value_);
+    }
+    int64_t as_int64() const{
+        return ANY2F64(value_);
+    }
+    bool as_bool() const{
+        return ANY2BOOL(value_);
+    }
+    const std::string& as_string() const{
+        const std::string& s = ANY2STR(value_);
+        return s;
+    }
+    const std::vector<double>& as_double_vector() const{
+        return ANY2F64ARR(value_);
+    }
+    const std::vector<std::string>& as_string_vector() const{
+        return ANY2STRARR(value_);
+    }
+    void* as_pointer() const{
+        return ANY2PTR(value_);
+    }
+    sol::function as_function() const{
+        return ANY2LUAFUN(value_);
+    }
+    sol::table as_table() const{
+        return ANY2LUATABLE(value_);
     }
 
     int32_t set_lua_value_with_check(const sol::lua_value &value)
@@ -237,45 +279,39 @@ struct NativeValue{
         do{
             auto value_type = value.value().get_type();
             if(value_type == sol::type::number){
-                if(type_ != kNumberValue)
+                if(type_ != kNumber)
                     break;
                 *this = value.as<double>();
             }
             else if(value_type == sol::type::boolean){
-                if(type_ != kBoolValue)
+                if(type_ != kBool)
                     break;
                 *this = value.as<bool>();
             }
             else if(value_type == sol::type::string){
-                if(type_ != kStringValue)
+                if(type_ != kString)
                     break;
                 *this = value.as<std::string>();
             }
             else if(value_type == sol::type::userdata || value_type == sol::type::lightuserdata){
-                if(type_ != kPointerValue)
+                if(type_ != kPointer)
                     break;
                 *this = value.as<void*>();
             }
             else if(value_type == sol::type::table){
-                if(type_ != kNumberVectorValue && type_ != kStringVectorValue && type_ != kTableValue)
+                if(type_ != kNumberArray && type_ != kTable)
                     break;
                 auto tb = value.as<sol::table>();
-
-                if(tb.size()){
-                    if(tb[0].is<double>()){
-                        *this = tb.as<std::vector<double>>();
-                    }
-                    else if(tb[0].is<std::string>()){
-                        *this = tb.as<std::vector<std::string>>();
-                    }
-                    else{
-                        *this = tb;
-                    }
-                }
-                break;
+                std::vector<double> numbers = tb.as<std::vector<double>>();
+                if(numbers.size())
+                    *this = tb.as<std::vector<double>>();
+                else if(!tb.empty())
+                    *this = tb;
+                else
+                    break;
             }
             else if(value_type == sol::type::function){
-                if(type_ != kFunctionValue)
+                if(type_ != kFunction)
                     break;
                 *this = value.as<sol::function>();
             }
@@ -309,20 +345,16 @@ struct NativeValue{
             }
             else if(value_type == sol::type::table){
                 auto tb = value.as<sol::table>();
-
                 if(tb.size()){
-                    if(tb[0].is<double>()){
+                    if(tb[0].get_type() == sol::type::number){
                         *this = tb.as<std::vector<double>>();
                     }
-                    else if(tb[0].is<std::string>()){
+                    else if(tb[0].get_type() == sol::type::string){
                         *this = tb.as<std::vector<std::string>>();
                     }
                     else{
                         *this = tb;
                     }
-                }
-                else{
-                    *this = std::vector<double>();
                 }
                 return 0;
             }
@@ -335,64 +367,56 @@ struct NativeValue{
     }
     lua_value create_lua_value(const state& lua_state) const{
         switch (type_) {
-        case kNumberValue:  return sol::lua_value(lua_state,number_value_);
-        case kNumberVectorValue:  return sol::lua_value(lua_state,number_vector_);
-        case kStringValue:  return sol::lua_value(lua_state,string_value_);
-        case kStringVectorValue:  return sol::lua_value(lua_state,string_vector_);
-        case kBoolValue:    return sol::lua_value(lua_state,number_value_!=0);
-        case kPointerValue: return sol::lua_value(lua_state,pointer_value_);
-        case kFunctionValue:return sol::lua_value(lua_state,function_value_);
-        case kTableValue:   return sol::lua_value(lua_state,table_value_);
+        case kNumber:  return sol::lua_value(lua_state,ANY2F64(value_));
+        case kBool:    return sol::lua_value(lua_state,ANY2BOOL(value_));
+        case kString:  return sol::lua_value(lua_state,ANY2STR(value_));
+        case kNumberArray:  return sol::lua_value(lua_state,ANY2F64ARR(value_));
+        case kStringArray:  return sol::lua_value(lua_state,ANY2STRARR(value_));
+        case kPointer: return sol::lua_value(lua_state,ANY2PTR(value_));
+        case kFunction:return sol::lua_value(lua_state,ANY2LUAFUN(value_));
+        case kTable:   return sol::lua_value(lua_state,ANY2LUATABLE(value_));
         }
         return sol::lua_value(lua_state,0);
     }
     std::string printable()
     {
         std::ostringstream ss;
-        if(type_ == kNumberValue)
-            ss<<"Number:"<<number_value_;
-        else if(type_ == kNumberVectorValue){
+        if(type_ == kNumber)
+            ss<<"Number:"<<kNumber;
+        else if(type_ == kBool)
+            ss<<"Bool:"<<((ANY2BOOL(value_))?"true":"false");
+        else if(type_ == kNumberArray){
             bool first = true;
             ss<<"Number Arrays:[";
-            for(double v : number_vector_)
+            for(double v : ANY2F64ARR(value_))
                 ss<<(first?"":",")<<v,first=false;
             ss<<"]";
         }
-        else if(type_ == kStringValue)
-            ss<<"String:"<<string_value_;
-        else if(type_ == kStringVectorValue){
+        else if(type_ == kStringArray){
             bool first = true;
-            ss<<"String Arrays:[";
-            for(std::string v : string_vector_)
+            ss<<"Number Arrays:[";
+            for(const std::string& v : ANY2STRARR(value_))
                 ss<<(first?"":",")<<"\""<<v<<"\"",first=false;
             ss<<"]";
         }
-        else if(type_ == kBoolValue)
-            ss<<"Bool:"<<((number_value_ == 0)?"false":"true");
-        else if(type_ == kPointerValue)
-            ss<<"Pointer:"<<pointer_value_;
-        else if(type_ == kFunctionValue)
-            ss<<"Function:"<<(function_value_.valid()?"valid":"nil");
-        else if(type_ == kTableValue)
-            ss<<"Table:"<<(table_value_.valid()?"valid":"nil");
+        else if(type_ == kString)
+            ss<<"String:"<<ANY2STR(value_);
+        else if(type_ == kPointer)
+            ss<<"Pointer:"<<ANY2PTR(value_);
+        else if(type_ == kFunction)
+            ss<<"Function:"<<(ANY2LUAFUN(value_).valid()?"valid":"nil");
+        else if(type_ == kTable)
+            ss<<"Table:"<<(ANY2LUATABLE(value_).valid()?"valid":"nil");
         return ss.str();
+
     }
 
 
-    NativeValueType         type_    = kNumberValue;
-    //union{
-        double                   number_value_ ;
-        std::vector<double>      number_vector_;
-        std::string              string_value_;
-        std::vector<std::string> string_vector_;
-        sol::function            function_value_;
-        sol::table               table_value_;
-        void*                    pointer_value_;
-        bool                     value_changed_;
-    //};
-
+    NativeValueType         type_    = kNumber;
+    std::any                value_;
     std::string             describe_;
     bool                    read_only_      = false;
+    bool                    value_changed_  = false;
 };
 
 class LuaOperator
@@ -443,15 +467,15 @@ public:
 
     int32_t apply_symbol(const std::string name, NativeValue *symbol)
     {
-        if(symbol->type_ == kNumberValue){
+        if(symbol->type_ == kNumber){
             double v = *symbol;
             (*lua_state_)[name] = v;
         }
-        else if(symbol->type_ == kNumberVectorValue){
+        else if(symbol->type_ == kNumberArray){
             std::vector<double> v = *symbol;
             (*lua_state_)[name] = sol::as_table(v);
         }
-        else if(symbol->type_ == kStringValue){
+        else if(symbol->type_ == kString){
             std::string v = *symbol;
             (*lua_state_)[name] = v;
         }
@@ -489,32 +513,6 @@ public:
         else
             func = sol::protected_function(obj[function],(*lua_state_)[error_handler_function_]);
         return func;
-    }
-
-    int32_t read_back()
-    {
-        if(symbols_ == nullptr)
-            return 0;
-        for(auto& item : *symbols_){
-            NativeValue* symbol = item.second;
-
-            if(symbol->value_changed_ == true)
-                continue;
-
-            if(symbol->type_ == kNumberValue){
-                double value = (*lua_state_)[item.first];
-                *symbol= value;
-                //fprintf(stderr,"%s:%f\n",item.first.c_str(),value);
-            }
-            else if(symbol->type_ == kNumberVectorValue){
-                const sol::table& values = (*lua_state_)[item.first];
-                *symbol = values.as<std::vector<double>>();
-            }
-            else if(symbol->type_ == kStringValue){
-                symbol->string_value_ = (*lua_state_)[item.first];
-            }
-        }
-        return 0;
     }
 
     sol::lua_value create_value(const NativeValue &value)

@@ -41,6 +41,11 @@ file( GLOB GLAD_HEADER glad/include/glad/*.h )
 add_library( glad STATIC ${GLAD_SOURCE} ${GLAD_HEADER})
 target_include_directories(glad PUBLIC ${SOURCE_ROOT_DIR}/glad/include)
 install(DIRECTORY glad/include/ DESTINATION include)
-install(TARGETS glad DESTINATION lib)
+install(TARGETS glad DESTINATION lib)                                                                      
+
+add_library( mp-common STATIC mp-common/miniz.c mp-common/logger.cpp)
+target_include_directories(mp-common PRIVATE ${CMAKE_INSTALL_PREFIX}/include)
+install(FILES  mp-common/miniz.h mp-common/logger.h DESTINATION include)
+install(TARGETS mp-common DESTINATION lib)
 
 

@@ -183,6 +183,7 @@ if [[ $MR_CROSS_COMPILE = "true" && $MR_TARGET_ARCH = "x86" && $MR_TARGET_OS = "
 fi
 export CC=$MR_CC
 export CXX=$MR_CXX
+export MR_CMAKE_CROSS_CONFIG="$MR_CMAKE_CROSS_CONFIG -DCMAKE_INSTALL_PREFIX=$MR_TARGET_PREFIX -DCMAKE_BUILD_TYPE=Release"
 ############################################################
 search_file $MR_TARGET_LIB_DIR "*spdlog*"
 HAS_BUILD_SPDLOG=$?
@@ -213,7 +214,7 @@ fetch_lib $SPDLOG_URI $SPDLOG_DIR $SPDLOG_FILE
 if [[ -e $SPDLOG_DIR && $HAS_BUILD_SPDLOG == 0 ]] ;then
 	cd $SPDLOG_DIR
         BUILD_DIR="$MR_BUILD_TEMP_DIR/spdlog"
-        cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR -DCMAKE_INSTALL_PREFIX=$MR_TARGET_PREFIX .
+        cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
         cd $BUILD_DIR && make -j && make install/strip
         cd $MR_DOWNLOAD_DIR
 fi
@@ -238,7 +239,7 @@ fetch_lib $LIBYUV_URI $LIBYUV_DIR
 if [[ -e $LIBYUV_DIR && $HAS_BUILD_LIBYUV = 0 ]] ;then
 	cd $LIBYUV_DIR
         BUILD_DIR="$MR_BUILD_TEMP_DIR/libyuv"
-        cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR -DCMAKE_INSTALL_PREFIX=$MR_TARGET_PREFIX .
+        cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
         cd $BUILD_DIR && make -j && make install/strip
         cd $MR_DOWNLOAD_DIR
 fi
@@ -283,7 +284,7 @@ fetch_lib $OPENAL_URI $OPENAL_DIR $OPENAL_FILE
 if [[ -e $OPENAL_DIR && $HAS_BUILD_OPENAL = 0 ]] ;then
 	cd $OPENAL_DIR
         BUILD_DIR="$MR_BUILD_TEMP_DIR/openal"
-        cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR -DCMAKE_INSTALL_PREFIX=$MR_TARGET_PREFIX -DALSOFT_EXAMPLES=OFF -DALSOFT_UTILS=OFF .
+        cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR -DALSOFT_EXAMPLES=OFF -DALSOFT_UTILS=OFF .
         cd $BUILD_DIR && make -j && make install/strip
         cd $MR_DOWNLOAD_DIR
 fi
@@ -291,5 +292,5 @@ fi
 ############################################################
 cd "$MR_PROJECT_DIR/sources"
 BUILD_DIR="$MR_BUILD_TEMP_DIR/sources"
-cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR -DCMAKE_INSTALL_PREFIX=$MR_TARGET_PREFIX .
+cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
 cd $BUILD_DIR && make -j && make install/strip
