@@ -44,7 +44,7 @@ public:
 #endif
 
 #define MP_LOG(level,format, ...) \
-    mp::Logger::log_simple(level,fmt_format(format,##__VA_ARGS__).c_str());
+    mp::Logger::log_simple(level,mp::fmt_format(format,##__VA_ARGS__).c_str());
 
 #define MP_TRACE(format, ...) MP_LOG(mp::Logger::kLogLevelTrace,format,##__VA_ARGS__)
 #define MP_DEBUG(format, ...) MP_LOG(mp::Logger::kLogLevelDebug,format,##__VA_ARGS__)
@@ -64,7 +64,7 @@ public:
 #else//MP_LOGGER_SIMPLE
 
 #define MP_LOG_MORE(level,format, ...) \
-    mp::Logger::log(level,__FILE__,__PRETTY_FUNCTION__,__LINE__,fmt_format(format,##__VA_ARGS__).c_str());
+    mp::Logger::log(level,__FILE__,__PRETTY_FUNCTION__,__LINE__,mp::fmt_format(format,##__VA_ARGS__).c_str());
 
 #define MP_TRACE_MORE(format, ...)  MP_LOG_MORE(mp::Logger::kLogLevelTrace,format,##__VA_ARGS__)
 #define MP_DEBUG_MORE(format, ...)  MP_LOG_MORE(mp::Logger::kLogLevelDebug,format,##__VA_ARGS__)
@@ -79,7 +79,7 @@ public:
 {\
  auto result = (call);\
  if(result<0){\
-    mp::Logger::log(level,__FILE__,__PRETTY_FUNCTION__,__LINE__,fmt_format(format,##__VA_ARGS__).c_str());\
+    mp::Logger::log(level,__FILE__,__PRETTY_FUNCTION__,__LINE__,mp::fmt_format(format,##__VA_ARGS__).c_str());\
  }\
 }
 
@@ -95,7 +95,7 @@ public:
 {\
  auto result = (call);\
  if(!result){\
-    mp::Logger::log(level,__FILE__,__PRETTY_FUNCTION__,__LINE__,fmt_format(format,##__VA_ARGS__).c_str());\
+    mp::Logger::log(level,__FILE__,__PRETTY_FUNCTION__,__LINE__,mp::fmt_format(format,##__VA_ARGS__).c_str());\
  }\
 }
 
@@ -114,6 +114,9 @@ inline long high_resolution_clock_get_elapsed_and_reset(std::chrono::high_resolu
     clock = now;
     return ns;
 }
+
+#define MP_TIMER_DEFINE(name) std::chrono::high_resolution_clock::time_point name
+#define MP_TIMER_NOW std::chrono::high_resolution_clock::now()
 #define MP_TIMER_NEW(name) auto name = std::chrono::high_resolution_clock::now()
 #define MP_TIMER_RESET(name) name = std::chrono::high_resolution_clock::now()
 #define MP_TIMER_MS(name) ((std::chrono::high_resolution_clock::now() - name).count() / 1000000.0)

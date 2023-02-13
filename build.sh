@@ -23,6 +23,14 @@ export MR_BUILD_TEMP_DIR="$MR_PROJECT_DIR/_build_temp/$MR_TARGET_OS-$MR_TARGET_A
 export MR_CMAKE_BUILD_DIR="$MR_TARGET_OS-$MR_TARGET_ARCH"
 export MR_CMAKE_CROSS_CONFIG=""
 
+export MR_CC=gcc
+export MR_CXX=g++
+
+if [ $MR_HOST_OS = "darwin" ] ;then
+export MR_CC=clang
+export MR_CXX=clang++
+fi
+
 chmod a+x $MR_PROJECT_DIR/scripts/build_luajit.sh
 chmod a+x $MR_PROJECT_DIR/scripts/build_ffmpeg.sh
 mkdir -p $MR_BUILD_TEMP_DIR
@@ -183,7 +191,7 @@ if [[ $MR_CROSS_COMPILE = "true" && $MR_TARGET_ARCH = "x86" && $MR_TARGET_OS = "
 fi
 export CC=$MR_CC
 export CXX=$MR_CXX
-export MR_CMAKE_CROSS_CONFIG="$MR_CMAKE_CROSS_CONFIG -DCMAKE_INSTALL_PREFIX=$MR_TARGET_PREFIX -DCMAKE_BUILD_TYPE=Release"
+export MR_CMAKE_CROSS_CONFIG="$MR_CMAKE_CROSS_CONFIG -DCMAKE_INSTALL_PREFIX=$MR_TARGET_PREFIX -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
 ############################################################
 search_file $MR_TARGET_LIB_DIR "*spdlog*"
 HAS_BUILD_SPDLOG=$?
