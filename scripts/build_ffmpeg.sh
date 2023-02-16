@@ -9,6 +9,7 @@ if [ $BUILD_PARAM = 'full' ] ; then
     ENABLED_COMPONENTS=""
 elif [ $BUILD_PARAM = 'mini' ] ; then
 	ENABLED_COMPONENTS="
+	--disable-avdevice --disable-postproc \
 	--disable-decoders --enable-decoder=h264,hevc,av1,vp8,vp9,prores,aac,mp3,vorbis,pcm* \
 	--disable-encoders --enable-encoder=aac,prores,h264_*,hevc_* \
 	--disable-demuxers --enable-demuxer=mp4,mov,avi,matroska,flv,asf,live_flv,h264,ogg,aac,mp3,wav \
@@ -16,6 +17,7 @@ elif [ $BUILD_PARAM = 'mini' ] ; then
 	--disable-parsers --enable-parser=h264,hevc,vp8,vp9,av1,aac*" 
 elif [ $BUILD_PARAM = 'tiny' ] ; then
 	ENABLED_COMPONENTS="
+	--disable-avdevice --disable-postproc \
 	--disable-decoders --enable-decoder=h264,hevc,prores,aac,pcm* \
 	--disable-encoders --enable-encoder=aac,prores \
 	--disable-demuxers --enable-demuxer=mp4,mov,h264,aac,wav \
@@ -25,14 +27,16 @@ elif [ $BUILD_PARAM = 'tiny' ] ; then
 	--disable-protocols --enable-protocol=file,http,hls,data \
 	--disable-bsfs --enable-bsf=h264*,hevc*,aac*" 
 else
-  echo "ERROR: LINUX BUILD BAD MATCH CROSS COMPILE TARGET:$MR_TARGET_ARCH HOST: $MR_HOST_ARCH"
-  return -1
+	ENABLED_COMPONENTS=$BUILD_PARAM
+	echo "INFO: ffmpeg use build config:$ENABLED_COMPONENTS"
+	return -1
 fi
     
-CONFIGURE_PARAM="$ENABLED_COMPONENTS --prefix=$MR_TARGET_PREFIX --enable-pic --disable-debug --disable-doc --disable-avdevice --disable-postproc"
+CONFIGURE_PARAM="$ENABLED_COMPONENTS --prefix=$MR_TARGET_PREFIX --enable-pic --disable-debug --disable-doc"
  
 #disable create symlinks
 sed -i "s#SLIB_INSTALL_NAME='\$(SLIBNAME_WITH_VERSION)'#SLIB_INSTALL_NAME='\$(SLIBNAME)'#" configure
+sed -i "s#SLIBNAME_WITH_MAJOR='\$(SLIBNAME).\$(LIBMAJOR)'#SLIBNAME_WITH_MAJOR='\$(SLIBNAME)'#" configure
 sed -i "s#SLIB_INSTALL_LINKS='\$(SLIBNAME_WITH_MAJOR) \$(SLIBNAME)'#SLIB_INSTALL_LINKS=#" configure
 
 function build(){
