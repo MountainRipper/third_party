@@ -1,6 +1,6 @@
 // File: '/home/xuwei/Downloads/NotoSansSC-Regular.subset.otf' (631012 bytes)
 // Exported using binary_to_compressed_c.cpp
-static const char notosans_compressed_data_base85[760615+1] =
+static const char notosans_sc_level_1s_compressed_data_base85[760615+1] =
     "7])#######]hfKm'/###l#8+>*<MM'Ql#v#cRNT9MUjMM2F+##vLZS%'l+h<D0>8]Krto%v](##J-.e=taqoS#Tuo%Yw&##3+qe=4kiQ;tXuo%1`3R3dJ^d>2xssf?w<6#%I.1#NNRlB"
     "JlQ(R%;X&#5Sh2#^_0aDm_:e,k(M2#h?QiLh$tLD:?Sp&S.$lLrRxqL<x$KD+tqG?9uplLmJw+#'Y-(Fx73A&/i3O+_KY)MoMbAFu*)I,ViXuL;p)*Mid$4G%?c+v_?gkL;x-tLOt'vH"
     "f8KjU3)vo%lVbw'bE(sL4L_;Ia&oo%a8.R<h($##G%1Wdn(,)#+5>>#1Zp*<ueAi=ekfi=K,wRC#*N=B7(uU%R7,x+%.]%'XtNA#5P=`sV3-%+Y.Fq&MkQguB'$##%U3I$jq<X$6o5;-"

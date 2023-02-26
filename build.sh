@@ -47,12 +47,19 @@ function download(){
 		echo "INFO: $DEST already downloaded"
 	else
 		echo "INFO: Download library $DEST from $URI"
-		wget $URI -O $DEST
-		if [ ${DEST##*.} = 'zip' ] ;then
-			unzip $DEST
-		elif [ ${DEST##*.} = 'gz' ] ;then
-			tar zxvf $DEST
-		fi
+		wget $URI -O $DEST			
+		if [ ! -e $DEST ] ;then
+			echo "download $DEST failed"
+			return 0
+		fi	
+	fi
+	
+	
+	
+	if [ ${DEST##*.} = 'zip' ] ;then
+		unzip $DEST
+	elif [ ${DEST##*.} = 'gz' ] ;then
+		tar zxvf $DEST
 	fi
 }
 
@@ -211,6 +218,12 @@ HAS_BUILD_FFMPEG=$?
 search_file $MR_TARGET_LIB_DIR "*openal*"
 HAS_BUILD_OPENAL=$?
 
+search_file $MR_TARGET_LIB_DIR "*png*"
+HAS_BUILD_LIBPNG=$?
+
+search_file $MR_TARGET_LIB_DIR "*freetype*"
+HAS_BUILD_FREETYPE=$?
+
 mkdir -p $MR_DOWNLOAD_DIR
 cd $MR_DOWNLOAD_DIR
 
@@ -221,7 +234,7 @@ SPDLOG_DIR="spdlog-1.11.0"
 fetch_lib $SPDLOG_URI $SPDLOG_DIR $SPDLOG_FILE
 if [[ -e $SPDLOG_DIR && $HAS_BUILD_SPDLOG == 0 ]] ;then
 	cd $SPDLOG_DIR
-        BUILD_DIR="$MR_BUILD_TEMP_DIR/spdlog"
+        BUILD_DIR="$MR_BUILD_TEMP_DIR/spdlog-1.11.0"
         cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
         cd $BUILD_DIR && make -j && make install/strip
         cd $MR_DOWNLOAD_DIR
@@ -291,8 +304,41 @@ OPENAL_DIR="openal-soft-1.23.0"
 fetch_lib $OPENAL_URI $OPENAL_DIR $OPENAL_FILE 
 if [[ -e $OPENAL_DIR && $HAS_BUILD_OPENAL = 0 ]] ;then
 	cd $OPENAL_DIR
-        BUILD_DIR="$MR_BUILD_TEMP_DIR/openal"
+        BUILD_DIR="$MR_BUILD_TEMP_DIR/openal-1.23.0"
         cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR -DALSOFT_EXAMPLES=OFF -DALSOFT_UTILS=OFF .
+        cd $BUILD_DIR && make -j && make install/strip
+        cd $MR_DOWNLOAD_DIR
+fi
+
+############################################################
+FREETYPE_URI="https://gitlab.freedesktop.org/freetype/freetype/-/archive/VER-2-13-0/freetype-VER-2-13-0.tar.gz"
+FREETYPE_FILE="freetype-VER-2-13-0.tar.gz"
+FREETYPE_DIR="freetype-VER-2-13-0"
+fetch_lib $FREETYPE_URI $FREETYPE_DIR $FREETYPE_FILE 
+if [[ -e $FREETYPE_DIR && $HAS_BUILD_FREETYPE = 0 ]] ;then
+	cd $FREETYPE_DIR
+        BUILD_DIR="$MR_BUILD_TEMP_DIR/freetype-2.13.0"
+        CMAKE_PLATFORM_CONFIG=""
+        if [[ $MR_TARGET_OS = "android" || $MR_TARGET_OS = "linux" || $MR_TARGET_OS = "windows" ]] ;then
+        	CMAKE_PLATFORM_CONFIG="-DBUILD_SHARED_LIBS=true "
+        	echo ""
+        fi
+        cmake $MR_CMAKE_CROSS_CONFIG $CMAKE_PLATFORM_CONFIG -B $BUILD_DIR -DFT_DISABLE_BROTLI=TRUE  .
+        cd $BUILD_DIR && make -j && make install/strip
+        cd $MR_DOWNLOAD_DIR
+fi
+
+
+############################################################
+LIBPNG_URI="https://github.com/glennrp/libpng/archive/refs/tags/v1.6.39.tar.gz"
+LIBPNG_FILE="libpng-1.6.39.tar.gz"
+LIBPNG_DIR="libpng-1.6.39"
+fetch_lib $LIBPNG_URI $LIBPNG_DIR $LIBPNG_FILE 
+echo $HAS_BUILD_LIBPNG
+if [[ -e $LIBPNG_DIR && $HAS_BUILD_LIBPNG = 0 ]] ;then
+	cd $LIBPNG_DIR
+        BUILD_DIR="$MR_BUILD_TEMP_DIR/libpng-1.6.39"
+        cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
         cd $BUILD_DIR && make -j && make install/strip
         cd $MR_DOWNLOAD_DIR
 fi
