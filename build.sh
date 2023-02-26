@@ -15,6 +15,14 @@ if [ -z "$1" ] ;then
         MR_TARGET_OS=$MR_HOST_OS
 fi
 
+case $MR_HOST_OS in
+  *"mingw64"*)
+    export MR_HOST_OS="mingw"
+	export MR_TARGET_OS="mingw"
+	pacman -S --noconfirm --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-nasm mingw-w64-x86_64-cmake make git unzip
+    ;;
+esac
+
 export MR_TARGET_PREFIX="$MR_PROJECT_DIR/targets/$MR_TARGET_OS-$MR_TARGET_ARCH"
 export MR_TARGET_LIB_DIR="$MR_TARGET_PREFIX/lib"
 export MR_TARGET_INCLUDE_DIR="$MR_TARGET_PREFIX/include"
@@ -22,6 +30,8 @@ export MR_DOWNLOAD_DIR="$MR_PROJECT_DIR/_download"
 export MR_BUILD_TEMP_DIR="$MR_PROJECT_DIR/_build_temp/$MR_TARGET_OS-$MR_TARGET_ARCH"
 export MR_CMAKE_BUILD_DIR="$MR_TARGET_OS-$MR_TARGET_ARCH"
 export MR_CMAKE_CROSS_CONFIG=""
+#NOTE: Add install prefix to PKG_CONFIG_PATH
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$MR_TARGET_LIB_DIR/pkgconfig"
 
 export MR_CC=gcc
 export MR_CXX=g++
@@ -29,6 +39,12 @@ export MR_CXX=g++
 if [ $MR_HOST_OS = "darwin" ] ;then
 export MR_CC=clang
 export MR_CXX=clang++
+fi
+
+if [ $MR_HOST_OS = "mingw" ] ;then
+export MR_CC=gcc
+export MR_CXX=g++
+export CMAKE_CXX_COMPILER=g++
 fi
 
 chmod a+x $MR_PROJECT_DIR/scripts/build_luajit.sh
@@ -215,7 +231,11 @@ HAS_BUILD_LIBX264=$?
 search_file $MR_TARGET_LIB_DIR "*avcodec*"
 HAS_BUILD_FFMPEG=$?
 
-search_file $MR_TARGET_LIB_DIR "*openal*"
+if [ $MR_HOST_OS = "mingw" ] ;then
+	search_file $MR_TARGET_LIB_DIR "*OpenAL*"
+else
+	search_file $MR_TARGET_LIB_DIR "*openal*"
+fi
 HAS_BUILD_OPENAL=$?
 
 search_file $MR_TARGET_LIB_DIR "*png*"
@@ -223,6 +243,12 @@ HAS_BUILD_LIBPNG=$?
 
 search_file $MR_TARGET_LIB_DIR "*freetype*"
 HAS_BUILD_FREETYPE=$?
+
+search_file $MR_TARGET_LIB_DIR "*glad*"
+HAS_BUILD_GLAD=$?
+
+search_file $MR_TARGET_LIB_DIR "*mp-common*"
+HAS_BUILD_MPCOMMON=$?
 
 mkdir -p $MR_DOWNLOAD_DIR
 cd $MR_DOWNLOAD_DIR
@@ -235,8 +261,9 @@ fetch_lib $SPDLOG_URI $SPDLOG_DIR $SPDLOG_FILE
 if [[ -e $SPDLOG_DIR && $HAS_BUILD_SPDLOG == 0 ]] ;then
 	cd $SPDLOG_DIR
         BUILD_DIR="$MR_BUILD_TEMP_DIR/spdlog-1.11.0"
-        cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
-        cd $BUILD_DIR && make -j && make install/strip
+        cmake $MR_CMAKE_CROSS_CONFIG -DSPDLOG_BUILD_EXAMPLE=OFF -B $BUILD_DIR .
+		cmake --build $BUILD_DIR
+		cmake --install $BUILD_DIR
         cd $MR_DOWNLOAD_DIR
 fi
 
@@ -248,7 +275,7 @@ if [[ -e $LUAJIT_DIR && $HAS_BUILD_LUAJIT = 0 ]] ;then
 	cd $LUAJIT_DIR
         cp -f "$MR_PROJECT_DIR/scripts/build_luajit.sh" ./
         export LUAJIT_BUILD_DIR="$MR_BUILD_TEMP_DIR/luajit"
-	./build_luajit.sh
+		./build_luajit.sh
         cd $MR_DOWNLOAD_DIR
 fi
 
@@ -258,10 +285,18 @@ LIBYUV_URI="https://chromium.googlesource.com/libyuv/libyuv"
 LIBYUV_DIR="libyuv"
 fetch_lib $LIBYUV_URI $LIBYUV_DIR
 if [[ -e $LIBYUV_DIR && $HAS_BUILD_LIBYUV = 0 ]] ;then
-	cd $LIBYUV_DIR
+		cd $LIBYUV_DIR
         BUILD_DIR="$MR_BUILD_TEMP_DIR/libyuv"
-        cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
-        cd $BUILD_DIR && make -j && make install/strip
+		if [ $MR_HOST_OS = "mingw" ] ;then
+			sed -i "s#{CMAKE_BINARY_DIR}/yuvconvert #{CMAKE_BINARY_DIR}/yuvconvert.exe #" CMakeLists.txt
+		fi
+        cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR -G "Unix Makefiles" .
+		cmake --build $BUILD_DIR
+		cmake --install $BUILD_DIR
+		
+		if [ $MR_HOST_OS = "mingw" ] ;then
+			cp -f $BUILD_DIR/*.dll.a $MR_TARGET_LIB_DIR/
+		fi
         cd $MR_DOWNLOAD_DIR
 fi
 
@@ -273,12 +308,10 @@ fetch_lib $LIBX264_URI $LIBX264_DIR
 if [ ! -e $LIBX264_BUILD_DIR ] ;then
  	cp -r $LIBX264_DIR  $LIBX264_BUILD_DIR
 fi
-echo $LIBX264_BUILD_DIR
-echo $HAS_BUILD_X264
 if [[ -e $LIBX264_BUILD_DIR && $HAS_BUILD_LIBX264 = 0 ]] ;then
 	cd $LIBX264_BUILD_DIR
         cp -f "$MR_PROJECT_DIR/scripts/build_x264.sh" ./
-	./build_x264.sh
+		./build_x264.sh
         cd $MR_DOWNLOAD_DIR
 fi
 
@@ -306,7 +339,8 @@ if [[ -e $OPENAL_DIR && $HAS_BUILD_OPENAL = 0 ]] ;then
 	cd $OPENAL_DIR
         BUILD_DIR="$MR_BUILD_TEMP_DIR/openal-1.23.0"
         cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR -DALSOFT_EXAMPLES=OFF -DALSOFT_UTILS=OFF .
-        cd $BUILD_DIR && make -j && make install/strip
+		cmake --build $BUILD_DIR
+		cmake --install $BUILD_DIR
         cd $MR_DOWNLOAD_DIR
 fi
 
@@ -319,12 +353,13 @@ if [[ -e $FREETYPE_DIR && $HAS_BUILD_FREETYPE = 0 ]] ;then
 	cd $FREETYPE_DIR
         BUILD_DIR="$MR_BUILD_TEMP_DIR/freetype-2.13.0"
         CMAKE_PLATFORM_CONFIG=""
-        if [[ $MR_TARGET_OS = "android" || $MR_TARGET_OS = "linux" || $MR_TARGET_OS = "windows" ]] ;then
+        if [[ $MR_TARGET_OS = "android" || $MR_TARGET_OS = "linux" || $MR_TARGET_OS = "windows" || $MR_TARGET_OS = "mingw" ]] ;then
         	CMAKE_PLATFORM_CONFIG="-DBUILD_SHARED_LIBS=true "
         	echo ""
         fi
         cmake $MR_CMAKE_CROSS_CONFIG $CMAKE_PLATFORM_CONFIG -B $BUILD_DIR -DFT_DISABLE_BROTLI=TRUE  .
-        cd $BUILD_DIR && make -j && make install/strip
+		cmake --build $BUILD_DIR
+		cmake --install $BUILD_DIR
         cd $MR_DOWNLOAD_DIR
 fi
 
@@ -334,17 +369,21 @@ LIBPNG_URI="https://github.com/glennrp/libpng/archive/refs/tags/v1.6.39.tar.gz"
 LIBPNG_FILE="libpng-1.6.39.tar.gz"
 LIBPNG_DIR="libpng-1.6.39"
 fetch_lib $LIBPNG_URI $LIBPNG_DIR $LIBPNG_FILE 
-echo $HAS_BUILD_LIBPNG
 if [[ -e $LIBPNG_DIR && $HAS_BUILD_LIBPNG = 0 ]] ;then
 	cd $LIBPNG_DIR
         BUILD_DIR="$MR_BUILD_TEMP_DIR/libpng-1.6.39"
         cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
-        cd $BUILD_DIR && make -j && make install/strip
+		cmake --build $BUILD_DIR
+		cmake --install $BUILD_DIR
         cd $MR_DOWNLOAD_DIR
 fi
 
 ############################################################
-cd "$MR_PROJECT_DIR/sources"
-BUILD_DIR="$MR_BUILD_TEMP_DIR/sources"
-cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
-cd $BUILD_DIR && make -j && make install/strip
+if [[ $HAS_BUILD_MPCOMMON = 0 || $HAS_BUILD_GLAD = 0 ]] ;then
+	cd "$MR_PROJECT_DIR/sources"
+	BUILD_DIR="$MR_BUILD_TEMP_DIR/sources"
+	cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
+	cmake --build $BUILD_DIR
+	cmake --install $BUILD_DIR
+fi
+

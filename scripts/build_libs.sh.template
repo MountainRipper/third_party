@@ -54,11 +54,15 @@ function build(){
       make
       make install
   elif [ $MR_TARGET_OS = 'darwin' ] ;then
-    echo 'Build luajit for macOS'
+    echo 'Build * for macOS'
+  elif [[ $MR_TARGET_OS = 'mingw' && $MR_HOST_OS = 'mingw' ]] ;then
+    echo 'Build * for MinGW on MinGW'
+  elif [[ $MR_TARGET_OS = 'mingw' && $MR_HOST_OS = 'linux' ]] ;then
+    echo 'Cross Build * for MinGW on Linux'
   elif [ $MR_TARGET_OS = 'ios' ] ;then
-    echo'Build luajit for iOS'
+    echo'Build * for iOS'
   elif [ $MR_TARGET_OS = 'bsd' ] ;then
-    echo 'Build luajit for BSD'
+    echo 'Build * for BSD'
   fi
 
 }

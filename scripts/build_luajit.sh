@@ -1,5 +1,9 @@
 #!/bin/bash
 TARGET_LIB="$MR_TARGET_PREFIX/lib/libluajit.so"
+if [[ $MR_HOST_OS = 'mingw' ]] ;then
+	TARGET_LIB="$MR_TARGET_PREFIX/bin/lua51.dll"
+fi
+
 TARGET_INCLUDE="$MR_TARGET_PREFIX/include/luajit"
 BUILD_DIR=$LUAJIT_BUILD_DIR
 BUILD_TARGET_DIR="$BUILD_DIR/build"
@@ -18,6 +22,7 @@ echo "build luajit in $(pwd)"
 
 function build(){
   if [ $MR_TARGET_OS = 'linux' ] ; then
+	  
       if [ $MR_TARGET_ARCH = 'x86_64' ] ; then
           #x86_64 will be native build
          echo 'Build for x86_64 Linux'
@@ -55,8 +60,14 @@ function build(){
       mkdir -p $(dirname $TARGET_LIB)
       mkdir -p $TARGET_INCLUDE
       cp -rf $BUILD_TARGET_DIR/lib/libluajit-5.1.so.2.1.0 $TARGET_LIB
-  elif [ $MR_TARGET_OS = 'macos' ] ;then
+  elif [ $MR_TARGET_OS = 'darwin' ] ;then
     echo 'Build luajit for macOS'
+  elif [[ $MR_TARGET_OS = 'mingw' && $MR_HOST_OS = 'mingw' ]] ;then
+    echo 'Build luajit for MinGW on Windows'
+	make -j install PREFIX=$BUILD_TARGET_DIR
+	cp $BUILD_DIR/src/*.dll $MR_TARGET_PREFIX/bin
+	cp $BUILD_DIR/src/*.exe $MR_TARGET_PREFIX/bin
+	cp $BUILD_DIR/src/*.a $MR_TARGET_PREFIX/lib
   elif [ $MR_TARGET_OS = 'ios' ] ;then
     echo'Build luajit for iOS'
   elif [ $MR_TARGET_OS = 'bsd' ] ;then
@@ -69,6 +80,6 @@ if [ -e $TARGET_LIB ] ;then
   echo "INFO: target luajit shared library $TARGET_LIB already exist,nothing to build"
 else
   build
+  mkdir -p $TARGET_INCLUDE
   cp -rf $BUILD_TARGET_DIR/include/luajit-2.1/* $TARGET_INCLUDE
-  cp -rf $BUILD_TARGET_DIR/include/luajit-2.1/* "$4/include"
 fi

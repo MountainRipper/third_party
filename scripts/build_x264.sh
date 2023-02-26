@@ -43,11 +43,15 @@ function build(){
         make -j
         make install
   elif [ $MR_TARGET_OS = 'darwin' ] ;then
-    	echo 'Build luajit for macOS'
+    	echo 'Build x264 for macOS'
+  elif [ $MR_TARGET_OS = 'mingw' ] ;then
+    	./configure $CONFIGURE_PARAM --enable-shared
+		make -j
+		make install
   elif [ $MR_TARGET_OS = 'ios' ] ;then
-    	echo'Build luajit for iOS'
+    	echo'Build x264 for iOS'
   elif [ $MR_TARGET_OS = 'bsd' ] ;then
-    	echo 'Build luajit for BSD'
+    	echo 'Build x264 for BSD'
   fi
 
 }

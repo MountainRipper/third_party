@@ -31,8 +31,8 @@
 *.out
 *.app
 
-*.user
-build-*
-_download
-_build_temp
+tools
 targets
+*.user
+build*
+_*

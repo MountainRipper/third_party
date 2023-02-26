@@ -32,7 +32,7 @@ else
 	return -1
 fi
     
-CONFIGURE_PARAM="$ENABLED_COMPONENTS --prefix=$MR_TARGET_PREFIX --enable-pic --disable-debug --disable-doc"
+CONFIGURE_PARAM="$ENABLED_COMPONENTS --prefix=$MR_TARGET_PREFIX --enable-pic --disable-debug --disable-doc --enable-libx264 --enable-gpl"
  
 #disable create symlinks
 sed -i "s#SLIB_INSTALL_NAME='\$(SLIBNAME_WITH_VERSION)'#SLIB_INSTALL_NAME='\$(SLIBNAME)'#" configure
@@ -45,7 +45,6 @@ function build(){
   	if [ $MR_TARGET_ARCH = 'x86' ] ; then 
   		M32_FLAG=" -m32"
   	fi
-  	#--pkg-config='pkg-config' --pkgconfigdir=$MR_SYSROOT/usr/lib/pkgconfig
   	CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-shared --target-os=linux --extra-cflags=\"-I$MR_TARGET_INCLUDE_DIR$M32_FLAG\" --extra-ldflags=\"-L$MR_TARGET_LIB_DIR$M32_FLAG\""
 	if [ $MR_CROSS_COMPILE = true ] ;then
 		CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-cross-compile --cross-prefix=$MR_CROSS_PREFIX --sysroot=$MR_SYSROOT --cc=$MR_CC --cxx=$MR_CXX"
@@ -86,6 +85,12 @@ function build(){
         make install
   elif [ $MR_TARGET_OS = 'darwin' ] ;then
     echo 'Build luajit for macOS'
+  elif [[ $MR_TARGET_OS = 'mingw' && $MR_HOST_OS = 'mingw' ]] ;then
+	echo 'Build ffmpeg for MinGW on Windows'
+	CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-shared --enable-libx264 --enable-gpl"
+	./configure $CONFIGURE_PARAM
+	make -j
+	make install
   elif [ $MR_TARGET_OS = 'ios' ] ;then
     echo'Build luajit for iOS'
   elif [ $MR_TARGET_OS = 'bsd' ] ;then
