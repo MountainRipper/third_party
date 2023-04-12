@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(mp-common)
+project(mr-common)
 SET(SOURCE_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 ########################### GLAD
@@ -44,9 +44,9 @@ set_property(TARGET glad PROPERTY POSITION_INDEPENDENT_CODE ON)
 install(DIRECTORY glad/include/ DESTINATION include)
 install(TARGETS glad DESTINATION lib)                                                                      
 
-add_library( mp-common STATIC mp-common/miniz.c mp-common/logger.cpp)
-target_include_directories(mp-common PRIVATE ${CMAKE_INSTALL_PREFIX}/include)
-set_property(TARGET mp-common PROPERTY POSITION_INDEPENDENT_CODE ON)
-install(FILES  mp-common/miniz.h mp-common/logger.h mp-common/imgui_helper.h DESTINATION include)
-install(TARGETS mp-common DESTINATION lib)
+add_library( mr-common STATIC mr-common/miniz.c mr-common/imgui_mr.cpp mr-common/logger.cpp)
+target_include_directories(mr-common PRIVATE ${SOURCE_ROOT_DIR}/../include ${CMAKE_INSTALL_PREFIX}/include)
+set_property(TARGET mr-common PROPERTY POSITION_INDEPENDENT_CODE ON)
+install(FILES  mr-common/miniz.h mr-common/logger.h mr-common/imgui_mr.h DESTINATION include/mr)
+install(TARGETS mr-common DESTINATION lib)
 
