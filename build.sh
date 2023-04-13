@@ -23,7 +23,9 @@ case $MR_HOST_OS in
     ;;
 esac
 
+export MR_PREBUILD_DIR="$MR_PROJECT_DIR/prebuild/$MR_TARGET_OS-$MR_TARGET_ARCH"
 export MR_TARGET_PREFIX="$MR_PROJECT_DIR/targets/$MR_TARGET_OS-$MR_TARGET_ARCH"
+export MR_TARGET_BIN_DIR="$MR_TARGET_PREFIX/bin"
 export MR_TARGET_LIB_DIR="$MR_TARGET_PREFIX/lib"
 export MR_TARGET_INCLUDE_DIR="$MR_TARGET_PREFIX/include"
 export MR_DOWNLOAD_DIR="$MR_PROJECT_DIR/_download"
@@ -50,6 +52,10 @@ fi
 chmod a+x $MR_PROJECT_DIR/scripts/build_luajit.sh
 chmod a+x $MR_PROJECT_DIR/scripts/build_ffmpeg.sh
 mkdir -p $MR_BUILD_TEMP_DIR
+mkdir -p $MR_TARGET_BIN_DIR
+mkdir -p $MR_TARGET_LIB_DIR
+mkdir -p $MR_TARGET_INCLUDE_DIR
+
 function download(){
 	URI=$1
 	DIR=$2
@@ -288,9 +294,10 @@ if [[ -e $LIBYUV_DIR && $HAS_BUILD_LIBYUV = 0 ]] ;then
 		cd $LIBYUV_DIR
         BUILD_DIR="$MR_BUILD_TEMP_DIR/libyuv"
 		if [ $MR_HOST_OS = "mingw" ] ;then
-			sed -i "s#{CMAKE_BINARY_DIR}/yuvconvert #{CMAKE_BINARY_DIR}/yuvconvert.exe #" CMakeLists.txt
+			echo ">>>>>>>>>>>>>>>>>>>>>>>>"
+			sed -i "s#{CMAKE_BINARY_DIR}/yuvconvert\t#{CMAKE_BINARY_DIR}/yuvconvert.exe\t#" CMakeLists.txt
 		fi
-        cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR -G "Unix Makefiles" .
+        cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
 		cmake --build $BUILD_DIR
 		cmake --install $BUILD_DIR
 		
@@ -387,3 +394,7 @@ if [[ $HAS_BUILD_MPCOMMON = 0 || $HAS_BUILD_GLAD = 0 ]] ;then
 	cmake --install $BUILD_DIR
 fi
 
+
+if [[ -e $MR_PREBUILD_DIR ]] ;then
+	cp -rf  $MR_PREBUILD_DIR/.  $MR_TARGET_PREFIX 
+fi

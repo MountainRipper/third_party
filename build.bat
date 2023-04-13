@@ -1,6 +1,6 @@
 @echo off
-::set http_proxy=http://127.0.0.1:1080
-::set https_proxy=http://127.0.0.1:1080
+set http_proxy=http://127.0.0.1:1080
+set https_proxy=http://127.0.0.1:1080
 set DIR_CUR=%~dp0
 set DIR_TOOLS=%DIR_CUR%tools
 SET INSTALLER_MSYS2=%DIR_TOOLS%\msys2-x86_64-20230127.exe
@@ -21,12 +21,11 @@ if exist %DIR_MSYS2% (
 	echo ***** INSTALL MSYS2 TO %DIR_MSYS2%
 	%INSTALLER_MSYS2% in --root %DIR_MSYS2% --accept-messages  --accept-licenses --confirm-command
 	copy %DIR_MSYS2%\etc\fstab %DIR_MSYS2%\etc\fstab.bak
-	echo %DIR_CUR% /projects/MountainRipper/third_party  >> %DIR_MSYS2%\etc\fstab
+	FOR %%A IN ("%~dp0.") DO SET mrfolder=%%~dpA
+	echo %mrfolder% /MountainRipper  >> %DIR_MSYS2%\etc\fstab
 )
 
-
 echo ****** Now open a msys2 shell to build libraries
-echo ****** $ cd /projects/MountainRipper/third_party
+echo ****** $ cd /MountainRipper/third_party
 echo ****** $ ./build.sh
 start %DIR_MSYS2%\mingw64.exe
-cd 

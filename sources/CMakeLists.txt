@@ -47,6 +47,6 @@ install(TARGETS glad DESTINATION lib)
 add_library( mp-common STATIC mp-common/miniz.c mp-common/logger.cpp)
 target_include_directories(mp-common PRIVATE ${CMAKE_INSTALL_PREFIX}/include)
 set_property(TARGET mp-common PROPERTY POSITION_INDEPENDENT_CODE ON)
-install(FILES  mp-common/miniz.h mp-common/logger.h mp-common/imgui_helper.h DESTINATION include)
+install(FILES  mp-common/miniz.h mp-common/logger.h DESTINATION include)
 install(TARGETS mp-common DESTINATION lib)
 
