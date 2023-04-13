@@ -1,9 +1,13 @@
 #ifndef IMGUI_HELPER_H
 #define IMGUI_HELPER_H
+#include <functional>
 #include <vector>
 #include <string>
 #include <map>
-#include <imgui.h>
+#include <imgui/imgui.h>
+
+namespace mr
+{
 
 struct ImguiFontResource
 {
@@ -100,5 +104,26 @@ private:
     int origin_size_ = 0;
 };
 
+template<typename Data>
+class GridView{
+    typedef std::function<int32_t(Data& data,int index,int width,int height)> draw_callback;
+    GridView(int32_t item_width,int32_t item_height,int32_t space);
+
+    int32_t draw(std::vector<Data &> *datas, draw_callback drawer)
+    {
+
+    }
+
+    int32_t update()
+    {
+
+    }
+private:
+    std::vector<Data&>* data_;
+    int32_t width_;
+    int32_t height_;
+};
+
+}
 
 #endif // IMGUI_HELPER_H
