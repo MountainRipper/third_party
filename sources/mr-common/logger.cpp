@@ -4,10 +4,10 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/fmt/bundled/printf.h>
 #include <spdlog/fmt/bundled/color.h>
-#include "logger.h"
+#include <mr/logger.h>
 
 //namespace mountain-ripper
-namespace mp {
+namespace mr {
 
 class LoggerInstance{
   public:
