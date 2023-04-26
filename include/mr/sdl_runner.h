@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <string>
 #include <cxxopts.hpp>
+#define SPDLOG_COMPILED_LIB
 #include <mr/logger.h>
 #define MR_GL_CHECK(level, format, ...) \
 {\
@@ -234,6 +235,9 @@ SDLShowcaseBase* showcase = nullptr;
 int win_w = MR_SDL_RUNNER_WIDTH;
 int win_h = MR_SDL_RUNNER_HEIGHT;
 
+#if defined(WIN32)
+#undef main
+#endif
 int main(int argc, char *argv[])
 {
     showcase = sdl_runner_create_showcase();

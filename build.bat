@@ -22,7 +22,7 @@ if exist %DIR_MSYS2% (
 	%INSTALLER_MSYS2% in --root %DIR_MSYS2% --accept-messages  --accept-licenses --confirm-command
 	copy %DIR_MSYS2%\etc\fstab %DIR_MSYS2%\etc\fstab.bak
 	FOR %%A IN ("%~dp0.") DO SET mrfolder=%%~dpA
-	echo %mrfolder% /MountainRipper  >> %DIR_MSYS2%\etc\fstab
+	echo %mrfolder% /MountainRipper>>%DIR_MSYS2%\etc\fstab
 )
 
 echo ****** Now open a msys2 shell to build libraries
