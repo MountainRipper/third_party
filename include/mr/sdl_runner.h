@@ -91,8 +91,11 @@ SDLShowcaseBase* sdl_runner_create_showcase(){\
 #include <glad/gl.h>
 #include <imgui/backends/imgui_impl_opengl3.cpp>
 #include <imgui/backends/imgui_impl_sdl2.cpp>
+#if defined(WIN32) || defined(WIN64)
+#include <imgui/backends/imgui_impl_win32.cpp>
+#endif
 #define IMGUI_IMPLEMENTATION
-//#define IMGUI_ENABLE_FREETYPE
+#define IMGUI_ENABLE_FREETYPE
 #include <imgui/misc/single_file/imgui_single_file.h>
 
 #if __ANDROID__
@@ -270,6 +273,10 @@ int main(int argc, char *argv[])
     if(graphic.empty())
         graphic = "opengl";
 
+#if defined(WIN32) || defined(WIN64)
+    ImGui_ImplWin32_EnableDpiAwareness();
+#endif
+
     SDL_Init(SDL_INIT_VIDEO);
 
     SDL_SetHint(SDL_HINT_RENDER_DRIVER,graphic.c_str());
@@ -364,6 +371,13 @@ int main(int argc, char *argv[])
     if(graphic == "opengl" || graphic == "opengles"){
         ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
         ImGui_ImplOpenGL3_Init(glsl_version);
+        const char* vendor = (const char*)glGetString(GL_VENDOR);
+        const char* renderer = (const char*)glGetString(GL_RENDERER);
+        const char* version = (const char*)glGetString(GL_VERSION);
+        fprintf(stderr,"Vendor:%s\nRenderer:%s\nVersion:%s\n",
+                vendor?vendor:"NULL",
+                renderer?renderer:"NULL",
+                version?version:"NULL");
     }
 
     SDL_GetWindowSize(window, &win_w, &win_h);
