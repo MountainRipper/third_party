@@ -7,7 +7,7 @@
 {\
     GLenum gl_error = GL_NO_ERROR;\
     while(GLenum err = glGetError()){\
-        MR_LOG_MORE(level,"OpenGL Call Failed:{} {}",err,mr::fmt_format(format,##__VA_ARGS__));\
+        MR_LOG(level,"OpenGL Call Failed:{} {}",err,mr::fmt_format(format,##__VA_ARGS__));\
         gl_error = err;\
     }\
 }
@@ -95,7 +95,7 @@ SDLShowcaseBase* sdl_runner_create_showcase(){\
 #include <imgui/backends/imgui_impl_win32.cpp>
 #endif
 #define IMGUI_IMPLEMENTATION
-#define IMGUI_ENABLE_FREETYPE
+//#define IMGUI_ENABLE_FREETYPE
 #include <imgui/misc/single_file/imgui_single_file.h>
 
 #if __ANDROID__

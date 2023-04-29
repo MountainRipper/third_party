@@ -3,6 +3,8 @@
 #include <cinttypes>
 #include <string>
 #include <chrono>
+//logger usr pre-build spdlog library
+#define SPDLOG_COMPILED_LIB
 #include <spdlog/fmt/fmt.h>
 
 //namespace mountain-ripper
@@ -10,7 +12,7 @@ namespace mr {
 
 
 template <typename S, typename... Args>
-std::string fmt_format(const S& format, Args&&... args) {
+inline std::string fmt_format(const S& format, Args&&... args) {
     return fmt::vformat(format, fmt::make_format_args(args...));
 }
 

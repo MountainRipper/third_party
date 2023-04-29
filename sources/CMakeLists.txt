@@ -47,6 +47,7 @@ install(TARGETS glad DESTINATION lib)
 
 add_library( mr-common STATIC mr-common/miniz.c mr-common/imgui_mr.cpp mr-common/logger.cpp)
 target_include_directories(mr-common PRIVATE ${CMAKE_INSTALL_PREFIX}/include ${SOURCE_ROOT_DIR}/../include)
+target_link_libraries(mr-common spdlog)
 set_property(TARGET mr-common PROPERTY POSITION_INDEPENDENT_CODE ON)
 install(TARGETS mr-common DESTINATION lib)
 
