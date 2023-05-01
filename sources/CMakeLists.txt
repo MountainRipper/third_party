@@ -44,11 +44,14 @@ set_property(TARGET glad PROPERTY POSITION_INDEPENDENT_CODE ON)
 install(DIRECTORY glad/include/ DESTINATION include)
 install(TARGETS glad DESTINATION lib)                                                                      
 
+add_library( compressor STATIC compressor/miniz.c compressor/zstd.c compressor/zstddeclib.c)
+target_include_directories(compressor PRIVATE  ${SOURCE_ROOT_DIR}/../include)
+install(TARGETS compressor  DESTINATION lib)
 
-add_library( mr-common STATIC mr-common/miniz.c mr-common/imgui_mr.cpp mr-common/logger.cpp)
+add_library( mr-common STATIC  mr-common/imgui_mr.cpp mr-common/logger.cpp)
 target_include_directories(mr-common PRIVATE ${CMAKE_INSTALL_PREFIX}/include ${SOURCE_ROOT_DIR}/../include)
 target_link_libraries(mr-common spdlog)
 set_property(TARGET mr-common PROPERTY POSITION_INDEPENDENT_CODE ON)
 install(TARGETS mr-common DESTINATION lib)
 
-
+add_subdirectory(minizip)
