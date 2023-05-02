@@ -9,7 +9,7 @@ if [ $BUILD_PARAM = 'full' ] ; then
     ENABLED_COMPONENTS=""
 elif [ $BUILD_PARAM = 'mini' ] ; then
 	ENABLED_COMPONENTS="
-	--disable-avdevice --disable-postproc \
+	--disable-postproc \
 	--disable-decoders --enable-decoder=h264,hevc,av1,vp8,vp9,prores,aac,mp3,vorbis,pcm* \
 	--disable-encoders --enable-encoder=aac,prores,h264_*,hevc_* \
 	--disable-demuxers --enable-demuxer=mp4,mov,avi,matroska,flv,asf,live_flv,h264,ogg,aac,mp3,wav \
@@ -17,7 +17,7 @@ elif [ $BUILD_PARAM = 'mini' ] ; then
 	--disable-parsers --enable-parser=h264,hevc,vp8,vp9,av1,aac*" 
 elif [ $BUILD_PARAM = 'tiny' ] ; then
 	ENABLED_COMPONENTS="
-	--disable-avdevice --disable-postproc \
+	--disable-postproc \
 	--disable-decoders --enable-decoder=h264,hevc,prores,aac,pcm* \
 	--disable-encoders --enable-encoder=aac,prores \
 	--disable-demuxers --enable-demuxer=mp4,mov,h264,aac,wav \

@@ -385,7 +385,7 @@ int main(int argc, char *argv[])
 
     SDL_DisplayMode mode;
     SDL_GetCurrentDisplayMode(SDL_GetWindowDisplayIndex(window),&mode);
-    auto global_scale  = mode.w / 1920.0;
+    auto global_scale  = std::max(mode.w / 1920.0, 1.0);
     float baseFontSize = 17.0f * global_scale;
     ImFontConfig icons_config;
     icons_config.PixelSnapH = true;
