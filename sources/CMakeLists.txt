@@ -48,7 +48,7 @@ add_library( compressor STATIC compressor/miniz.c compressor/zstd.c compressor/z
 target_include_directories(compressor PRIVATE  ${SOURCE_ROOT_DIR}/../include)
 install(TARGETS compressor  DESTINATION lib)
 
-add_library( mr-common STATIC  mr-common/imgui_mr.cpp mr-common/logger.cpp)
+add_library( mr-common STATIC  mr-common/imgui_mr.cpp mr-common/logger.cpp mr-common/easylogging++.cpp)
 target_include_directories(mr-common PRIVATE ${CMAKE_INSTALL_PREFIX}/include ${SOURCE_ROOT_DIR}/../include)
 target_link_libraries(mr-common spdlog)
 set_property(TARGET mr-common PROPERTY POSITION_INDEPENDENT_CODE ON)
