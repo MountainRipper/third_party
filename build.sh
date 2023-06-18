@@ -268,7 +268,7 @@ if [[ -e $SPDLOG_DIR && $HAS_BUILD_SPDLOG == 0 ]] ;then
 	cd $SPDLOG_DIR
         BUILD_DIR="$MR_BUILD_TEMP_DIR/spdlog-1.11.0"
         cmake $MR_CMAKE_CROSS_CONFIG -DSPDLOG_BUILD_EXAMPLE=OFF -B $BUILD_DIR .
-		cmake --build $BUILD_DIR
+                cmake --build $BUILD_DIR -j
 		cmake --install $BUILD_DIR
         cd $MR_DOWNLOAD_DIR
 fi
@@ -298,7 +298,7 @@ if [[ -e $LIBYUV_DIR && $HAS_BUILD_LIBYUV = 0 ]] ;then
 			sed -i "s#{CMAKE_BINARY_DIR}/yuvconvert\t#{CMAKE_BINARY_DIR}/yuvconvert.exe\t#" CMakeLists.txt
 		fi
         cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
-		cmake --build $BUILD_DIR
+                cmake --build $BUILD_DIR -j
 		cmake --install $BUILD_DIR
 		
 		if [ $MR_HOST_OS = "mingw" ] ;then
@@ -346,7 +346,7 @@ if [[ -e $OPENAL_DIR && $HAS_BUILD_OPENAL = 0 ]] ;then
 	cd $OPENAL_DIR
         BUILD_DIR="$MR_BUILD_TEMP_DIR/openal-1.23.0"
         cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR -DALSOFT_EXAMPLES=OFF -DALSOFT_UTILS=OFF .
-		cmake --build $BUILD_DIR
+                cmake --build $BUILD_DIR -j
 		cmake --install $BUILD_DIR
         cd $MR_DOWNLOAD_DIR
 fi
@@ -365,7 +365,7 @@ if [[ -e $FREETYPE_DIR && $HAS_BUILD_FREETYPE = 0 ]] ;then
         	echo ""
         fi
         cmake $MR_CMAKE_CROSS_CONFIG $CMAKE_PLATFORM_CONFIG -B $BUILD_DIR -DFT_DISABLE_BROTLI=TRUE  .
-		cmake --build $BUILD_DIR
+                cmake --build $BUILD_DIR -j
 		cmake --install $BUILD_DIR
         cd $MR_DOWNLOAD_DIR
 fi
@@ -380,7 +380,7 @@ if [[ -e $LIBPNG_DIR && $HAS_BUILD_LIBPNG = 0 ]] ;then
 	cd $LIBPNG_DIR
         BUILD_DIR="$MR_BUILD_TEMP_DIR/libpng-1.6.39"
         cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
-		cmake --build $BUILD_DIR
+                cmake --build $BUILD_DIR -j
 		cmake --install $BUILD_DIR
         cd $MR_DOWNLOAD_DIR
 fi
@@ -390,7 +390,7 @@ if [[ $HAS_BUILD_MPCOMMON = 0 || $HAS_BUILD_GLAD = 0 ]] ;then
 	cd "$MR_PROJECT_DIR/sources"
 	BUILD_DIR="$MR_BUILD_TEMP_DIR/sources"
 	cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
-	cmake --build $BUILD_DIR
+        cmake --build $BUILD_DIR -j
 	cmake --install $BUILD_DIR
 fi
 

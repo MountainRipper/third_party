@@ -4,7 +4,7 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/fmt/bundled/printf.h>
 #include <spdlog/fmt/bundled/color.h>
-#include <mr/logger.h>
+#include <logger.h>
 
 //namespace mountain-ripper
 namespace mr {

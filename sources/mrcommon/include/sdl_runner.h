@@ -2,7 +2,7 @@
 #include <string>
 #include <cxxopts.hpp>
 #define SPDLOG_COMPILED_LIB
-#include <mr/logger.h>
+#include <mrcommon/logger.h>
 #define MR_GL_CHECK(level, format, ...) \
 {\
     GLenum gl_error = GL_NO_ERROR;\
@@ -77,7 +77,7 @@ SDLShowcaseBase* sdl_runner_create_showcase(){\
 #include <ttf/ttf_material_icon.h>
 #include <ttf/ttf_font_awesome_solid.h>
 #include <ttf/IconsMaterialDesign.h>
-#include <mr/imgui_mr.h>
+#include <mrcommon/imgui_mr.h>
 
 
 #if USE_GLES3

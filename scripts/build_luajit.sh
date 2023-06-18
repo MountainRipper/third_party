@@ -4,6 +4,7 @@ if [[ $MR_HOST_OS = 'mingw' ]] ;then
 	TARGET_LIB="$MR_TARGET_PREFIX/bin/lua51.dll"
 fi
 
+
 TARGET_INCLUDE="$MR_TARGET_PREFIX/include/luajit"
 BUILD_DIR=$LUAJIT_BUILD_DIR
 BUILD_TARGET_DIR="$BUILD_DIR/build"
@@ -43,6 +44,7 @@ function build(){
       mkdir -p $(dirname $TARGET_LIB)
       mkdir -p $TARGET_INCLUDE
       cp -rf $BUILD_TARGET_DIR/lib/libluajit-5.1.so.2.1.0 $TARGET_LIB
+      cp -rf $BUILD_TARGET_DIR/lib/libluajit-5.1.so.2.1.0 "$MR_TARGET_PREFIX/bin/libluajit-5.1.so.2"
   elif [ $MR_TARGET_OS = 'android' ] ;then
       echo 'Build luajit for Android'
       if [ $MR_TARGET_ARCH = 'x86_64' ] ; then

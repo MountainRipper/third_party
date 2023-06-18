@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(mr-common)
+project(mrcommon)
 SET(SOURCE_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 ########################### GLAD
@@ -48,10 +48,12 @@ add_library( compressor STATIC compressor/miniz.c compressor/zstd.c compressor/z
 target_include_directories(compressor PRIVATE  ${SOURCE_ROOT_DIR}/../include)
 install(TARGETS compressor  DESTINATION lib)
 
-add_library( mr-common STATIC  mr-common/imgui_mr.cpp mr-common/logger.cpp mr-common/easylogging++.cpp)
-target_include_directories(mr-common PRIVATE ${CMAKE_INSTALL_PREFIX}/include ${SOURCE_ROOT_DIR}/../include)
-target_link_libraries(mr-common spdlog)
-set_property(TARGET mr-common PROPERTY POSITION_INDEPENDENT_CODE ON)
-install(TARGETS mr-common DESTINATION lib)
+file( GLOB MR_COMMON_SOURCE mrcommon/*.cpp )
+add_library( mrcommon STATIC  ${MR_COMMON_SOURCE})
+target_include_directories(mrcommon PRIVATE mrcommon/include ${CMAKE_INSTALL_PREFIX}/include ${SOURCE_ROOT_DIR}/../include)
+target_link_libraries(mrcommon spdlog)
+set_property(TARGET mrcommon PROPERTY POSITION_INDEPENDENT_CODE ON)
+install(DIRECTORY mrcommon/include/ DESTINATION include/mrcommon)
+install(TARGETS mrcommon DESTINATION lib)
 
 add_subdirectory(minizip)
