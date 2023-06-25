@@ -233,13 +233,49 @@ uint32_t create_program(const char* vss, const char* fss){
     return prog;
 }
 
-
 SDLShowcaseBase* showcase = nullptr;
 int win_w = MR_SDL_RUNNER_WIDTH;
 int win_h = MR_SDL_RUNNER_HEIGHT;
 
 #if defined(WIN32)
 #undef main
+#include <windows.h>
+void config_windows_dpi_awareness(){
+    typedef enum PROCESS_DPI_AWARENESS {
+        PROCESS_DPI_UNAWARE = 0,
+        PROCESS_SYSTEM_DPI_AWARE = 1,
+        PROCESS_PER_MONITOR_DPI_AWARE = 2
+    } PROCESS_DPI_AWARENESS;
+
+    void* userDLL;
+    BOOL(WINAPI *SetProcessDPIAware)(void); // Vista and later
+    void* shcoreDLL;
+    HRESULT(WINAPI *SetProcessDpiAwareness)(PROCESS_DPI_AWARENESS dpiAwareness); // Windows 8.1 and later
+
+    userDLL = SDL_LoadObject("USER32.DLL");
+    if (userDLL) {
+    SetProcessDPIAware = (BOOL(WINAPI *)(void)) SDL_LoadFunction(userDLL, "SetProcessDPIAware");
+    }
+
+    shcoreDLL = SDL_LoadObject("SHCORE.DLL");
+    if (shcoreDLL) {
+    SetProcessDpiAwareness = (HRESULT(WINAPI *)(PROCESS_DPI_AWARENESS)) SDL_LoadFunction(shcoreDLL, "SetProcessDpiAwareness");
+    }
+
+    if (SetProcessDpiAwareness) {
+    /* Try Windows 8.1+ version */
+    HRESULT result = SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+    SDL_Log("called SetProcessDpiAwareness: %d", (result == S_OK) ? 1 : 0);
+    }
+    else if (SetProcessDPIAware) {
+    /* Try Vista - Windows 8 version.
+    This has a constant scale factor for all monitors.
+    */
+    BOOL success = SetProcessDPIAware();
+    SDL_Log("called SetProcessDPIAware: %d", (int)success);
+    }
+    SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING ,"1");
+}
 #endif
 int main(int argc, char *argv[])
 {
@@ -272,10 +308,6 @@ int main(int argc, char *argv[])
 
     if(graphic.empty())
         graphic = "opengl";
-
-#if defined(WIN32) || defined(WIN64)
-    ImGui_ImplWin32_EnableDpiAwareness();
-#endif
 
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -331,7 +363,13 @@ int main(int argc, char *argv[])
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 #endif
 
+    SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING,"1");
     showcase->on_pre_init(result,window_flags);
+
+#if defined(WIN32) || defined(WIN64)
+    ImGui_ImplWin32_EnableDpiAwareness();
+    config_windows_dpi_awareness();
+#endif
 
     if(win_w == 0){
         SDL_DisplayMode mode;
