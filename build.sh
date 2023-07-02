@@ -253,8 +253,8 @@ HAS_BUILD_FREETYPE=$?
 search_file $MR_TARGET_LIB_DIR "*glad*"
 HAS_BUILD_GLAD=$?
 
-search_file $MR_TARGET_LIB_DIR "*mp-common*"
-HAS_BUILD_MPCOMMON=$?
+search_file $MR_TARGET_LIB_DIR "*mrcommon*"
+HAS_BUILD_MRCOMMON=$?
 
 mkdir -p $MR_DOWNLOAD_DIR
 cd $MR_DOWNLOAD_DIR
@@ -386,7 +386,7 @@ if [[ -e $LIBPNG_DIR && $HAS_BUILD_LIBPNG = 0 ]] ;then
 fi
 
 ############################################################
-if [[ $HAS_BUILD_MPCOMMON = 0 || $HAS_BUILD_GLAD = 0 ]] ;then
+if [[ $HAS_BUILD_MRCOMMON = 0 || $HAS_BUILD_GLAD = 0 ]] ;then
 	cd "$MR_PROJECT_DIR/sources"
 	BUILD_DIR="$MR_BUILD_TEMP_DIR/sources"
 	cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
