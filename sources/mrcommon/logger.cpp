@@ -126,13 +126,12 @@ void Logger::log_simple(Logger::LogLevel level, const char *log) {
         logger_instance.file_logger_->log(level_enum,log);
 }
 
-void Logger::log(Logger::LogLevel level, const char *file, const char *function, uint32_t line, const char *log) {
+void Logger::log(Logger::LogLevel level, const char *log) {
     auto level_enum = static_cast<spdlog::level::level_enum>(level);
-    auto text = fmt::format("{}:{} {} {}",file,line,function,log);
     auto& logger_instance = LoggerInstance::get();
-    logger_instance.loggers_[level]->log(level_enum,text);
+    logger_instance.loggers_[level]->log(level_enum,log);
     if(logger_instance.file_logger_)
-        logger_instance.file_logger_->log(level_enum,text);
+        logger_instance.file_logger_->log(level_enum,log);
 }
 
 

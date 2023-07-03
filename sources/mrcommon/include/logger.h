@@ -5,6 +5,7 @@
 #include <chrono>
 //logger usr pre-build spdlog library
 #define SPDLOG_COMPILED_LIB
+#define FMT_HEADER_ONLY
 #include <spdlog/fmt/fmt.h>
 
 //namespace mountain-ripper
@@ -31,7 +32,7 @@ public:
         kLogLevelOff = 6
     };
 
-    static void log(mr::Logger::LogLevel level,const char* file, const char* function, uint32_t line, const char* log);
+    static void log(mr::Logger::LogLevel level, const char* log);
     static void log_simple(mr::Logger::LogLevel level,const char* log);
 
     static void set_level(mr::Logger::LogLevel level);
@@ -66,7 +67,7 @@ public:
 #else//MR_LOGGER_SIMPLE
 
 #define MR_LOG_MORE(level,format, ...) \
-    mr::Logger::log(level,__FILE__,__PRETTY_FUNCTION__,__LINE__,mr::fmt_format(format,##__VA_ARGS__).c_str());
+mr::Logger::log(level,mr::fmt_format("{} {} {}"##format,,__FILE__,__PRETTY_FUNCTION__,__LINE__,##__VA_ARGS__).c_str());
 
 #define MR_TRACE_MORE(format, ...)  MR_LOG_MORE(mr::Logger::kLogLevelTrace,format,##__VA_ARGS__)
 #define MR_DEBUG_MORE(format, ...)  MR_LOG_MORE(mr::Logger::kLogLevelDebug,format,##__VA_ARGS__)
@@ -81,7 +82,7 @@ public:
 {\
  auto result = (call);\
  if(result<0){\
-    mr::Logger::log(level,__FILE__,__PRETTY_FUNCTION__,__LINE__,mr::fmt_format(format,##__VA_ARGS__).c_str());\
+    mr::Logger::log(level,mr::fmt_format("{} {} {}"##format,,__FILE__,__PRETTY_FUNCTION__,__LINE__,##__VA_ARGS__).c_str());\
  }\
 }
 
@@ -97,7 +98,7 @@ public:
 {\
  auto result = (call);\
  if(!result){\
-    mr::Logger::log(level,__FILE__,__PRETTY_FUNCTION__,__LINE__,mr::fmt_format(format,##__VA_ARGS__).c_str());\
+    mr::Logger::log(level,mr::fmt_format("{} {} {}"##format,,__FILE__,__PRETTY_FUNCTION__,__LINE__,##__VA_ARGS__).c_str());\
  }\
 }
 

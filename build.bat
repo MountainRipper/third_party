@@ -31,8 +31,8 @@ echo ****** $ ./build.sh
 
 echo %1 | findstr "^msvc" >nul
 if %errorlevel% equ 0 (
-start %DIR_MSYS2%\msys2_shell.cmd
+	%DIR_MSYS2%\msys2_shell.cmd
 ) else (
-echo ****** $ ./build.sh
-start %DIR_MSYS2%\mingw64.exe
+	echo ****** $ ./build.sh
+	start %DIR_MSYS2%\mingw64.exe
 )

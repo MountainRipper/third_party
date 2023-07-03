@@ -846,15 +846,15 @@ struct numeric_limits<intx::uint<N>>  // NOLINT(cert-dcl58-cpp)
     static constexpr bool traps = std::numeric_limits<unsigned>::traps;
     static constexpr bool tinyness_before = false;
 
-    static constexpr type min() noexcept { return 0; }
-    static constexpr type lowest() noexcept { return min(); }
-    static constexpr type max() noexcept { return ~type{0}; }
-    static constexpr type epsilon() noexcept { return 0; }
-    static constexpr type round_error() noexcept { return 0; }
-    static constexpr type infinity() noexcept { return 0; }
-    static constexpr type quiet_NaN() noexcept { return 0; }
-    static constexpr type signaling_NaN() noexcept { return 0; }
-    static constexpr type denorm_min() noexcept { return 0; }
+//    static constexpr type min() noexcept { return 0; }
+//    static constexpr type lowest() noexcept { return min(); }
+//    static constexpr type max() noexcept { return ~type{0}; }
+//    static constexpr type epsilon() noexcept { return 0; }
+//    static constexpr type round_error() noexcept { return 0; }
+//    static constexpr type infinity() noexcept { return 0; }
+//    static constexpr type quiet_NaN() noexcept { return 0; }
+//    static constexpr type signaling_NaN() noexcept { return 0; }
+//    static constexpr type denorm_min() noexcept { return 0; }
 };
 }  // namespace std
 
