@@ -1,9 +1,78 @@
 #!/bin/bash
+function download(){
+        URI=$1
+        DIR=$2
+        DEST=$3
+        if [ -e $DIR ] ;then
+                echo "INFO:Directory $DIR already exist"
+                return
+        fi
+
+        if [ -e $DEST ] ;then
+                echo "INFO: $DEST already downloaded"
+        else
+                echo "INFO: Download library $DEST from $URI"
+                wget $URI -O $DEST
+                if [ ! -e $DEST ] ;then
+                        echo "download $DEST failed"
+                        return 0
+                fi
+        fi
+
+
+
+        if [ ${DEST##*.} = 'zip' ] ;then
+                unzip $DEST
+        elif [ ${DEST##*.} = 'gz' ] ;then
+                tar zxvf $DEST
+        fi
+}
+
+function gitclone(){
+        URI=$1
+        DIR=$2
+        if [ -e $DIR ] ;then
+                echo "INFO:Repo Directory $DIR already exist，update.."
+                cd $DIR
+                #git pull
+                cd ..
+        else
+                echo "INFO: git clone library from $URI"
+                git clone $URI
+        fi
+}
+#$1: uri
+#$2: target dir
+#$3: temp file
+function fetch_lib(){
+        URI=$1
+        EXT=${URI##*.}
+        if [ $EXT = 'zip' ] || [ $EXT = 'gz' ] || [ $EXT = 'bz2' ] || [ $EXT = 'xz' ] ;then
+                download $1 $2 $3
+        else
+                gitclone $1 $2
+        fi
+}
+
+
+function search_file(){
+        if find $1 -maxdepth 1 -name $2 -print -quit | grep -q '^'; then
+                echo "$2 found in $1 "
+                return 1
+        else
+                echo "$2 not found"
+                return 0
+        fi
+}
+
+############################################################
+
 export MR_TARGET_OS=$1
 export MR_TARGET_ARCH=$2
 export MR_HOST_OS=$(uname)
 export MR_HOST_OS="${MR_HOST_OS,,}"
 export MR_HOST_ARCH=$(uname -m)
+export MR_COMPILER=""
 export MR_PROJECT_DIR=$(pwd)
 export MR_CROSS_COMPILE=false
 
@@ -15,38 +84,76 @@ if [ -z "$1" ] ;then
         MR_TARGET_OS=$MR_HOST_OS
 fi
 
+export MR_CC=gcc
+export MR_CXX=g++
+export MR_COMPILER=gcc
+export MR_COMPILER_VER=$MR_COMPILER
+
 case $MR_HOST_OS in
-  *"mingw64"*)
-    export MR_HOST_OS="mingw"
-	export MR_TARGET_OS="mingw"
-	pacman -S --noconfirm --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-nasm mingw-w64-x86_64-cmake make git unzip
+    *"linux"*)
+        export MR_COMPILER=$MR_CC
+        export MR_COMPILER_VER=$MR_COMPILER
+    ;;
+    *"android"*)
+        export MR_CC=clang
+        export MR_CXX=clang++
+        export MR_COMPILER=$MR_CC
+        export MR_COMPILER_VER=$MR_COMPILER
+    ;;
+    *"darwin"*)
+        export MR_CC=clang
+        export MR_CXX=clang++
+        export MR_COMPILER=$MR_CC
+        export MR_COMPILER_VER=$MR_COMPILER
+    ;;
+    *"mingw64"*)
+        export MR_HOST_OS=windows
+        export MR_TARGET_OS=windows
+        export MR_COMPILER=mingw
+        export MR_COMPILER_VER=$MR_COMPILER
+        pacman -S --noconfirm --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-nasm mingw-w64-x86_64-cmake make git unzip
+    ;;
+    *"msys_nt"*)
+        export MR_HOST_OS=windows
+        export MR_TARGET_OS=windows
+        export MR_CC=cl
+        export MR_CXX=cl
+        export MR_COMPILER="msvc"
+        pacman -S --noconfirm --needed nasm yasm git unzip
+        sed -i "s#rem set MSYS2_PATH_TYPE=inherit#set MSYS2_PATH_TYPE=inherit#" tools/msys2/msys2_shell.cmd
+
+        case $VCINSTALLDIR  in
+            *"2022"*)
+                echo "USE MSVC 2022"
+                export MR_COMPILER_VER=msvc2022
+            ;;
+            *"2019"*)
+                echo "USE MSVC 2019"
+                export MR_COMPILER_VER=msvc2019
+            ;;
+        esac
     ;;
 esac
 
-export MR_PREBUILD_DIR="$MR_PROJECT_DIR/prebuild/$MR_TARGET_OS-$MR_TARGET_ARCH"
-export MR_TARGET_PREFIX="$MR_PROJECT_DIR/targets/$MR_TARGET_OS-$MR_TARGET_ARCH"
+
+export CMAKE_CXX_COMPILER=$MR_CXX
+
+export MR_PREBUILD_DIR="$MR_PROJECT_DIR/prebuild/$MR_TARGET_OS-$MR_COMPILER_VER-$MR_TARGET_ARCH"
+export MR_TARGET_PREFIX="$MR_PROJECT_DIR/targets/$MR_TARGET_OS-$MR_COMPILER_VER-$MR_TARGET_ARCH"
 export MR_TARGET_BIN_DIR="$MR_TARGET_PREFIX/bin"
 export MR_TARGET_LIB_DIR="$MR_TARGET_PREFIX/lib"
 export MR_TARGET_INCLUDE_DIR="$MR_TARGET_PREFIX/include"
 export MR_DOWNLOAD_DIR="$MR_PROJECT_DIR/_download"
-export MR_BUILD_TEMP_DIR="$MR_PROJECT_DIR/_build_temp/$MR_TARGET_OS-$MR_TARGET_ARCH"
-export MR_CMAKE_BUILD_DIR="$MR_TARGET_OS-$MR_TARGET_ARCH"
+export MR_BUILD_TEMP_DIR="$MR_PROJECT_DIR/_build_temp/$MR_TARGET_OS-$MR_COMPILER_VER-$MR_TARGET_ARCH"
+export MR_CMAKE_BUILD_DIR="$MR_TARGET_OS-$MR_COMPILER_VER-$MR_TARGET_ARCH"
 export MR_CMAKE_CROSS_CONFIG=""
 #NOTE: Add install prefix to PKG_CONFIG_PATH
 export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$MR_TARGET_LIB_DIR/pkgconfig"
 
-export MR_CC=gcc
-export MR_CXX=g++
+echo ${MR_TARGET_PREFIX}
 
-if [ $MR_HOST_OS = "darwin" ] ;then
-export MR_CC=clang
-export MR_CXX=clang++
-fi
-
-if [ $MR_HOST_OS = "mingw" ] ;then
-export MR_CC=gcc
-export MR_CXX=g++
-export CMAKE_CXX_COMPILER=g++
+if [[ ! -e $MR_PROJECT_DIR/targets/prebuild.txt ]] ;then
+        cp -rf  $MR_PROJECT_DIR/prebuild/.  $MR_PROJECT_DIR/targets
 fi
 
 chmod a+x $MR_PROJECT_DIR/scripts/build_luajit.sh
@@ -56,73 +163,6 @@ mkdir -p $MR_TARGET_BIN_DIR
 mkdir -p $MR_TARGET_LIB_DIR
 mkdir -p $MR_TARGET_INCLUDE_DIR
 
-function download(){
-	URI=$1
-	DIR=$2
-	DEST=$3
-	if [ -e $DIR ] ;then
-	  	echo "INFO:Directory $DIR already exist"
-	  	return
-	fi
-
-	if [ -e $DEST ] ;then
-		echo "INFO: $DEST already downloaded"
-	else
-		echo "INFO: Download library $DEST from $URI"
-		wget $URI -O $DEST			
-		if [ ! -e $DEST ] ;then
-			echo "download $DEST failed"
-			return 0
-		fi	
-	fi
-	
-	
-	
-	if [ ${DEST##*.} = 'zip' ] ;then
-		unzip $DEST
-	elif [ ${DEST##*.} = 'gz' ] ;then
-		tar zxvf $DEST
-	fi
-}
-
-function gitclone(){
-	URI=$1
-	DIR=$2
-	if [ -e $DIR ] ;then
-	  	echo "INFO:Repo Directory $DIR already exist，update.."
-	  	cd $DIR
-	  	#git pull
-	  	cd ..
-	else
-		echo "INFO: git clone library from $URI"
-		git clone $URI
-	fi
-}
-#$1: uri 
-#$2: target dir 
-#$3: temp file
-function fetch_lib(){
-	URI=$1
-	EXT=${URI##*.}
-	if [ $EXT = 'zip' ] || [ $EXT = 'gz' ] || [ $EXT = 'bz2' ] || [ $EXT = 'xz' ] ;then
-		download $1 $2 $3
-	else
-		gitclone $1 $2
-	fi
-}
-
-
-function search_file(){
-	if find $1 -maxdepth 1 -name $2 -print -quit | grep -q '^'; then
-		echo "$2 found in $1 "
-  		return 1
-	else
-		echo "$2 not found"
-  		return 0
-	fi
-}
-
-############################################################
 . config.cfg
 CROSS_AARCH64_LINUX_GCC=$AARCH64_LINUX_GNU_GCC
 CROSS_AARCH64_LINUX_SYSROOT=$AARCH64_LINUX_GNU_SYSROOT
@@ -220,15 +260,24 @@ if [[ $MR_CROSS_COMPILE = "true" && $MR_TARGET_ARCH = "x86" && $MR_TARGET_OS = "
 fi
 export CC=$MR_CC
 export CXX=$MR_CXX
-export MR_CMAKE_CROSS_CONFIG="$MR_CMAKE_CROSS_CONFIG -DCMAKE_INSTALL_PREFIX=$MR_TARGET_PREFIX -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
+export MR_CMAKE_CROSS_CONFIG="$MR_CMAKE_CROSS_CONFIG -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$MR_TARGET_PREFIX -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON"
+
+
+if [ $MR_COMPILER = "msvc" ] ;then
+    export MR_CMAKE_CROSS_CONFIG="$MR_CMAKE_CROSS_CONFIG -GNinja "
+fi
+
 ############################################################
 search_file $MR_TARGET_LIB_DIR "*spdlog*"
 HAS_BUILD_SPDLOG=$?
 
+search_file $MR_TARGET_LIB_DIR "*zlib*"
+HAS_BUILD_ZLIB=$?
+
 search_file $MR_TARGET_LIB_DIR "*luajit*"
 HAS_BUILD_LUAJIT=$?
 
-search_file $MR_TARGET_LIB_DIR "*libyuv*"
+search_file $MR_TARGET_LIB_DIR "*yuv*"
 HAS_BUILD_LIBYUV=$?
 
 search_file $MR_TARGET_LIB_DIR "*x264*"
@@ -237,7 +286,7 @@ HAS_BUILD_LIBX264=$?
 search_file $MR_TARGET_LIB_DIR "*avcodec*"
 HAS_BUILD_FFMPEG=$?
 
-if [ $MR_HOST_OS = "mingw" ] ;then
+if [ $MR_HOST_OS = "windows" ] ;then
 	search_file $MR_TARGET_LIB_DIR "*OpenAL*"
 else
 	search_file $MR_TARGET_LIB_DIR "*openal*"
@@ -268,11 +317,24 @@ if [[ -e $SPDLOG_DIR && $HAS_BUILD_SPDLOG == 0 ]] ;then
 	cd $SPDLOG_DIR
         BUILD_DIR="$MR_BUILD_TEMP_DIR/spdlog-1.11.0"
         cmake $MR_CMAKE_CROSS_CONFIG -DSPDLOG_BUILD_EXAMPLE=OFF -B $BUILD_DIR .
-                cmake --build $BUILD_DIR -j
-		cmake --install $BUILD_DIR
+        cmake --build $BUILD_DIR -j
+        cmake --install $BUILD_DIR
         cd $MR_DOWNLOAD_DIR
 fi
 
+############################################################
+ZLIB_URI="https://www.zlib.net/zlib-1.2.13.tar.gz"
+ZLIB_FILE="zlib-1.2.13.tar.gz"
+ZLIB_DIR="zlib-1.2.13"
+fetch_lib $ZLIB_URI $ZLIB_DIR $ZLIB_FILE
+if [[ -e $ZLIB_DIR && $HAS_BUILD_ZLIB == 0 ]] ;then
+        cd $ZLIB_DIR
+        BUILD_DIR="$MR_BUILD_TEMP_DIR/zlib-1.2.13"
+        cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
+        cmake --build $BUILD_DIR -j
+        cmake --install $BUILD_DIR
+        cd $MR_DOWNLOAD_DIR
+fi
 ############################################################
 LUAJIT_URI="https://luajit.org/git/luajit.git"
 LUAJIT_DIR="luajit"
@@ -281,7 +343,7 @@ if [[ -e $LUAJIT_DIR && $HAS_BUILD_LUAJIT = 0 ]] ;then
 	cd $LUAJIT_DIR
         cp -f "$MR_PROJECT_DIR/scripts/build_luajit.sh" ./
         export LUAJIT_BUILD_DIR="$MR_BUILD_TEMP_DIR/luajit"
-		./build_luajit.sh
+        ./build_luajit.sh
         cd $MR_DOWNLOAD_DIR
 fi
 
@@ -291,19 +353,19 @@ LIBYUV_URI="https://chromium.googlesource.com/libyuv/libyuv"
 LIBYUV_DIR="libyuv"
 fetch_lib $LIBYUV_URI $LIBYUV_DIR
 if [[ -e $LIBYUV_DIR && $HAS_BUILD_LIBYUV = 0 ]] ;then
-		cd $LIBYUV_DIR
+        cd $LIBYUV_DIR
         BUILD_DIR="$MR_BUILD_TEMP_DIR/libyuv"
-		if [ $MR_HOST_OS = "mingw" ] ;then
-			echo ">>>>>>>>>>>>>>>>>>>>>>>>"
-			sed -i "s#{CMAKE_BINARY_DIR}/yuvconvert\t#{CMAKE_BINARY_DIR}/yuvconvert.exe\t#" CMakeLists.txt
-		fi
+        if [ $MR_HOST_OS = "mingw" ] ;then
+                echo ">>>>>>>>>>>>>>>>>>>>>>>>"
+                sed -i "s#{CMAKE_BINARY_DIR}/yuvconvert\t#{CMAKE_BINARY_DIR}/yuvconvert.exe\t#" CMakeLists.txt
+        fi
         cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
-                cmake --build $BUILD_DIR -j
-		cmake --install $BUILD_DIR
-		
-		if [ $MR_HOST_OS = "mingw" ] ;then
-			cp -f $BUILD_DIR/*.dll.a $MR_TARGET_LIB_DIR/
-		fi
+        cmake --build $BUILD_DIR -j
+        cmake --install $BUILD_DIR
+
+        if [ $MR_HOST_OS = "mingw" ] ;then
+                cp -f $BUILD_DIR/*.dll.a $MR_TARGET_LIB_DIR/
+        fi
         cd $MR_DOWNLOAD_DIR
 fi
 
@@ -318,7 +380,7 @@ fi
 if [[ -e $LIBX264_BUILD_DIR && $HAS_BUILD_LIBX264 = 0 ]] ;then
 	cd $LIBX264_BUILD_DIR
         cp -f "$MR_PROJECT_DIR/scripts/build_x264.sh" ./
-		./build_x264.sh
+        ./build_x264.sh
         cd $MR_DOWNLOAD_DIR
 fi
 
@@ -334,7 +396,7 @@ fi
 if [[ -e $FFMPEG_BUILD_DIR && $HAS_BUILD_FFMPEG = 0 ]] ;then
 	cd $FFMPEG_BUILD_DIR
         cp -f "$MR_PROJECT_DIR/scripts/build_ffmpeg.sh" ./
-        ./build_ffmpeg.sh $FFMPEG_BUILD_TYPE
+        #./build_ffmpeg.sh $FFMPEG_BUILD_TYPE
         cd $MR_DOWNLOAD_DIR
 fi
 ############################################################
@@ -346,8 +408,8 @@ if [[ -e $OPENAL_DIR && $HAS_BUILD_OPENAL = 0 ]] ;then
 	cd $OPENAL_DIR
         BUILD_DIR="$MR_BUILD_TEMP_DIR/openal-1.23.0"
         cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR -DALSOFT_EXAMPLES=OFF -DALSOFT_UTILS=OFF .
-                cmake --build $BUILD_DIR -j
-		cmake --install $BUILD_DIR
+        cmake --build $BUILD_DIR -j
+        cmake --install $BUILD_DIR
         cd $MR_DOWNLOAD_DIR
 fi
 
@@ -365,8 +427,8 @@ if [[ -e $FREETYPE_DIR && $HAS_BUILD_FREETYPE = 0 ]] ;then
         	echo ""
         fi
         cmake $MR_CMAKE_CROSS_CONFIG $CMAKE_PLATFORM_CONFIG -B $BUILD_DIR -DFT_DISABLE_BROTLI=TRUE  .
-                cmake --build $BUILD_DIR -j
-		cmake --install $BUILD_DIR
+        cmake --build $BUILD_DIR -j
+        cmake --install $BUILD_DIR
         cd $MR_DOWNLOAD_DIR
 fi
 
@@ -380,8 +442,8 @@ if [[ -e $LIBPNG_DIR && $HAS_BUILD_LIBPNG = 0 ]] ;then
 	cd $LIBPNG_DIR
         BUILD_DIR="$MR_BUILD_TEMP_DIR/libpng-1.6.39"
         cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
-                cmake --build $BUILD_DIR -j
-		cmake --install $BUILD_DIR
+        cmake --build $BUILD_DIR -j
+        cmake --install $BUILD_DIR
         cd $MR_DOWNLOAD_DIR
 fi
 
@@ -394,7 +456,3 @@ if [[ $HAS_BUILD_MRCOMMON = 0 || $HAS_BUILD_GLAD = 0 ]] ;then
 	cmake --install $BUILD_DIR
 fi
 
-
-if [[ -e $MR_PREBUILD_DIR ]] ;then
-	cp -rf  $MR_PREBUILD_DIR/.  $MR_TARGET_PREFIX 
-fi

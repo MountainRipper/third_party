@@ -37,7 +37,7 @@ extern "C" {
 
 #ifndef LZ4STREAM_H
 #define LZ4STREAM_H
-
+#include <inttypes.h>
 #include <stdio.h>
 #include "lz4frame_static.h"
 

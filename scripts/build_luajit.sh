@@ -64,12 +64,24 @@ function build(){
       cp -rf $BUILD_TARGET_DIR/lib/libluajit-5.1.so.2.1.0 $TARGET_LIB
   elif [ $MR_TARGET_OS = 'darwin' ] ;then
     echo 'Build luajit for macOS'
-  elif [[ $MR_TARGET_OS = 'mingw' && $MR_HOST_OS = 'mingw' ]] ;then
-    echo 'Build luajit for MinGW on Windows'
-	make -j install PREFIX=$BUILD_TARGET_DIR
+  elif [[ $MR_TARGET_OS = 'windows' ]] ;then
+        if [ $MR_COMPILER = 'mingw' ] ; then
+            echo 'Build luajit for MinGW on Windows'
+            make -j install PREFIX=$BUILD_TARGET_DIR
+        elif [ $MR_COMPILER = 'msvc' ] ; then
+            echo 'Build luajit for MSVC on Windows'
+            #mv /usr/bin/link.exe /usr/bin/link.bak.exe
+            cd src
+            #cmd  msvcbuild.bat
+            #mv /usr/bin/link.bak.exe /usr/bin/link.exe
+        else
+          echo "ERROR: WINDOWS BUILD BAD MATCH CROSS COMPILE TARGET:$MR_TARGET_ARCH COMPILER: $MR_COMPILER"
+          return -1
+        fi
 	cp $BUILD_DIR/src/*.dll $MR_TARGET_PREFIX/bin
 	cp $BUILD_DIR/src/*.exe $MR_TARGET_PREFIX/bin
 	cp $BUILD_DIR/src/*.a $MR_TARGET_PREFIX/lib
+        cp $BUILD_DIR/src/*.lib $MR_TARGET_PREFIX/lib
   elif [ $MR_TARGET_OS = 'ios' ] ;then
     echo'Build luajit for iOS'
   elif [ $MR_TARGET_OS = 'bsd' ] ;then

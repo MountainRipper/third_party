@@ -40,7 +40,7 @@ sed -i "s#SLIBNAME_WITH_MAJOR='\$(SLIBNAME).\$(LIBMAJOR)'#SLIBNAME_WITH_MAJOR='\
 sed -i "s#SLIB_INSTALL_LINKS='\$(SLIBNAME_WITH_MAJOR) \$(SLIBNAME)'#SLIB_INSTALL_LINKS=#" configure
 
 function build(){
-  if [ $MR_TARGET_OS = 'linux' ] ; then
+    if [ $MR_TARGET_OS = 'linux' ] ; then
   	M32_FLAG=""
   	if [ $MR_TARGET_ARCH = 'x86' ] ; then 
   		M32_FLAG=" -m32"
@@ -67,7 +67,7 @@ function build(){
 
 	make -j
 	make install
-  elif [ $MR_TARGET_OS = 'android' ] ; then
+    elif [ $MR_TARGET_OS = 'android' ] ; then
         CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-shared  --target-os=android --enable-cross-compile --cross-prefix=$MR_CROSS_PREFIX --sysroot=$MR_SYSROOT  --cc=$MR_CC --cxx=$MR_CXX --extra-ldflags=\"-L$MR_TARGET_LIB_DIR\" --extra-cflags=\"-DVK_ENABLE_BETA_EXTENSIONS=0 -I$MR_TARGET_INCLUDE_DIR\""
         if [ $MR_TARGET_ARCH = 'x86_64' ] ; then
                 ./configure $CONFIGURE_PARAM --arch=x86_64
@@ -83,19 +83,28 @@ function build(){
         fi
         make -j
         make install
-  elif [ $MR_TARGET_OS = 'darwin' ] ;then
-    echo 'Build luajit for macOS'
-  elif [[ $MR_TARGET_OS = 'mingw' && $MR_HOST_OS = 'mingw' ]] ;then
-	echo 'Build ffmpeg for MinGW on Windows'
-	CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-shared --enable-libx264 --enable-gpl"
+    elif [ $MR_TARGET_OS = 'darwin' ] ;then
+        echo 'Build luajit for macOS'
+    elif [[ $MR_TARGET_OS = 'windows' ]] ;then
+
+        if [ $MR_COMPILER = 'mingw' ] ; then
+            echo 'Build ffmpeg for MinGW on Windows'
+            CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-shared --enable-libx264 --enable-gpl"
+        elif [ $MR_COMPILER = 'msvc' ] ; then
+            echo 'Build ffmpeg for MSVC on Windows'
+            CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-shared --enable-gpl --toolchain=msvc --target-os=win64 --arch=x86_64"
+        else
+          echo "ERROR: LINUX BUILD BAD MATCH CROSS COMPILE TARGET:$MR_TARGET_ARCH HOST: $MR_HOST_ARCH"
+          return -1
+        fi
 	./configure $CONFIGURE_PARAM
 	make -j
 	make install
-  elif [ $MR_TARGET_OS = 'ios' ] ;then
-    echo'Build luajit for iOS'
-  elif [ $MR_TARGET_OS = 'bsd' ] ;then
-    echo 'Build luajit for BSD'
-  fi
+    elif [ $MR_TARGET_OS = 'ios' ] ;then
+        echo'Build luajit for iOS'
+    elif [ $MR_TARGET_OS = 'bsd' ] ;then
+        echo 'Build luajit for BSD'
+    fi
 
 }
 

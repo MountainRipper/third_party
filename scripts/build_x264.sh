@@ -4,7 +4,7 @@ BUILD_PARAM=$1
 CONFIGURE_PARAM="$ENABLED_COMPONENTS --prefix=$MR_TARGET_PREFIX --enable-strip --enable-pic --enable-static --disable-cli"
 
 function build(){
-  if [ $MR_TARGET_OS = 'linux' ] ; then
+    if [ $MR_TARGET_OS = 'linux' ] ; then
       
 	CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-shared"
 	if [ $MR_CROSS_COMPILE = true ] ;then
@@ -26,7 +26,7 @@ function build(){
 
         make -j
         make install
-  elif [ $MR_TARGET_OS = 'android' ] ;then
+    elif [ $MR_TARGET_OS = 'android' ] ;then
         CONFIGURE_PARAM="$CONFIGURE_PARAM --cross-prefix=$MR_CROSS_PREFIX --sysroot=$MR_SYSROOT  --enable-shared"
         if [ $MR_TARGET_ARCH = 'x86_64' ] ; then
                 ./configure $CONFIGURE_PARAM --host=x86_64-linux-android 
@@ -42,18 +42,26 @@ function build(){
         fi
         make -j
         make install
-  elif [ $MR_TARGET_OS = 'darwin' ] ;then
+    elif [ $MR_TARGET_OS = 'darwin' ] ;then
     	echo 'Build x264 for macOS'
-  elif [ $MR_TARGET_OS = 'mingw' ] ;then
-    	./configure $CONFIGURE_PARAM --enable-shared
-		make -j
-		make install
-  elif [ $MR_TARGET_OS = 'ios' ] ;then
+    elif [ $MR_TARGET_OS = 'windows' ] ;then
+        if [ $MR_COMPILER = 'mingw' ] ; then
+            echo 'Build x264 for MinGW'
+            ./configure $CONFIGURE_PARAM --enable-shared
+        elif [ $MR_COMPILER = 'msvc' ] ; then
+            echo 'Build x264 for MSVC'
+            CC=cl ./configure $CONFIGURE_PARAM --enable-shared
+        else
+          echo "ERROR: WINDOWS BUILD BAD MATCH CROSS COMPILE TARGET:$MR_TARGET_ARCH COMPILER: $MR_COMPILER"
+          return -1
+        fi
+        make -j
+        make install
+    elif [ $MR_TARGET_OS = 'ios' ] ;then
     	echo'Build x264 for iOS'
-  elif [ $MR_TARGET_OS = 'bsd' ] ;then
+    elif [ $MR_TARGET_OS = 'bsd' ] ;then
     	echo 'Build x264 for BSD'
-  fi
-
+    fi
 }
 
 build

@@ -44,7 +44,7 @@ set_property(TARGET glad PROPERTY POSITION_INDEPENDENT_CODE ON)
 install(DIRECTORY glad/include/ DESTINATION include)
 install(TARGETS glad DESTINATION lib)                                                                      
 
-add_library( compressor STATIC compressor/miniz.c compressor/zstd.c compressor/zstddeclib.c)
+add_library( compressor STATIC compressor/miniz.c compressor/zstd.c)
 target_include_directories(compressor PRIVATE  ${SOURCE_ROOT_DIR}/../include)
 install(TARGETS compressor  DESTINATION lib)
 
