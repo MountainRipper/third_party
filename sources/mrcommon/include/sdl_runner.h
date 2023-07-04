@@ -362,11 +362,11 @@ int main(int argc, char *argv[])
 #ifdef SDL_HINT_IME_SHOW_UI
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 #endif
-
-    SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING,"1");
+    
     showcase->on_pre_init(result,window_flags);
 
 #if defined(WIN32) || defined(WIN64)
+    DL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING,"1");
     ImGui_ImplWin32_EnableDpiAwareness();
     config_windows_dpi_awareness();
 #endif
