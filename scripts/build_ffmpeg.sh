@@ -11,7 +11,7 @@ elif [ $BUILD_PARAM = 'mini' ] ; then
 	ENABLED_COMPONENTS="
 	--disable-postproc \
 	--disable-decoders --enable-decoder=h264,hevc,av1,vp8,vp9,prores,aac,mp3,vorbis,pcm* \
-	--disable-encoders --enable-encoder=aac,prores,h264_*,hevc_* \
+        --disable-encoders --enable-encoder=libx264,aac,prores,h264_*,hevc_* \
 	--disable-demuxers --enable-demuxer=mp4,mov,avi,matroska,flv,asf,live_flv,h264,ogg,aac,mp3,wav \
 	--disable-muxers --enable-muxer=mp4,mov,flv,wav,aac \
 	--disable-parsers --enable-parser=h264,hevc,vp8,vp9,av1,aac*" 
@@ -19,7 +19,7 @@ elif [ $BUILD_PARAM = 'tiny' ] ; then
 	ENABLED_COMPONENTS="
 	--disable-postproc \
 	--disable-decoders --enable-decoder=h264,hevc,prores,aac,pcm* \
-	--disable-encoders --enable-encoder=aac,prores \
+        --disable-encoders --enable-encoder=libx264,aac,prores \
 	--disable-demuxers --enable-demuxer=mp4,mov,h264,aac,wav \
 	--disable-muxers --enable-muxer=mp4,mov,wav,aac \
 	--disable-parsers --enable-parser=h264,hevc,aac* \
@@ -90,16 +90,18 @@ function build(){
 
         if [ $MR_COMPILER = 'mingw' ] ; then
             echo 'Build ffmpeg for MinGW on Windows'
-            CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-shared --enable-libx264 --enable-gpl"
+            CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-shared"
         elif [ $MR_COMPILER = 'msvc' ] ; then
             echo 'Build ffmpeg for MSVC on Windows'
             sed -i "s#Cflags: -I\${prefix}/include -DX264_API_IMPORTS#Cflags: -I\${prefix}/include#" $MR_TARGET_LIB_DIR/pkgconfig/x264.pc
-            CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-shared --enable-gpl --toolchain=msvc --target-os=win64 --arch=x86_64"
+            sed -i "s#CC_IDENT#\"$MR_COMPILER_VER\"#" fftools/ffprobe.c
+            sed -i "s#CC_IDENT#\"$MR_COMPILER_VER\"#" fftools/opt_common.c
+            CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-shared --toolchain=msvc --target-os=win64 --arch=x86_64"
         else
           echo "ERROR: LINUX BUILD BAD MATCH CROSS COMPILE TARGET:$MR_TARGET_ARCH HOST: $MR_HOST_ARCH"
           return -1
         fi
-	./configure $CONFIGURE_PARAM
+        ./configure $CONFIGURE_PARAM
 	make -j
 	make install        
     elif [ $MR_TARGET_OS = 'ios' ] ;then
