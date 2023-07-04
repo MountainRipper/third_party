@@ -38,6 +38,7 @@ CONFIGURE_PARAM="$ENABLED_COMPONENTS --prefix=$MR_TARGET_PREFIX --enable-pic --d
 sed -i "s#SLIB_INSTALL_NAME='\$(SLIBNAME_WITH_VERSION)'#SLIB_INSTALL_NAME='\$(SLIBNAME)'#" configure
 sed -i "s#SLIBNAME_WITH_MAJOR='\$(SLIBNAME).\$(LIBMAJOR)'#SLIBNAME_WITH_MAJOR='\$(SLIBNAME)'#" configure
 sed -i "s#SLIB_INSTALL_LINKS='\$(SLIBNAME_WITH_MAJOR) \$(SLIBNAME)'#SLIB_INSTALL_LINKS=#" configure
+#sed -i "s#SLIBNAME_WITH_MAJOR='\$(SLIBPREF)\$(FULLNAME)-\$(LIBMAJOR)\$(SLIBSUF)'#SLIBNAME_WITH_MAJOR='\$(SLIBPREF)\$(FULLNAME)\$(SLIBSUF)'#" configure
 
 function build(){
     if [ $MR_TARGET_OS = 'linux' ] ; then
@@ -50,7 +51,7 @@ function build(){
 		CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-cross-compile --cross-prefix=$MR_CROSS_PREFIX --sysroot=$MR_SYSROOT --cc=$MR_CC --cxx=$MR_CXX"
 		export PKG_CONFIG_PATH=$MR_SYSROOT/usr/lib/pkgconfig
 	fi
-	
+
 	echo $CONFIGURE_PARAM
 	if [ $MR_TARGET_ARCH = 'x86_64' ] ; then
 	 	./configure $CONFIGURE_PARAM
@@ -92,6 +93,7 @@ function build(){
             CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-shared --enable-libx264 --enable-gpl"
         elif [ $MR_COMPILER = 'msvc' ] ; then
             echo 'Build ffmpeg for MSVC on Windows'
+            sed -i "s#Cflags: -I\${prefix}/include -DX264_API_IMPORTS#Cflags: -I\${prefix}/include#" $MR_TARGET_LIB_DIR/pkgconfig/x264.pc
             CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-shared --enable-gpl --toolchain=msvc --target-os=win64 --arch=x86_64"
         else
           echo "ERROR: LINUX BUILD BAD MATCH CROSS COMPILE TARGET:$MR_TARGET_ARCH HOST: $MR_HOST_ARCH"
@@ -99,7 +101,7 @@ function build(){
         fi
 	./configure $CONFIGURE_PARAM
 	make -j
-	make install
+	make install        
     elif [ $MR_TARGET_OS = 'ios' ] ;then
         echo'Build luajit for iOS'
     elif [ $MR_TARGET_OS = 'bsd' ] ;then

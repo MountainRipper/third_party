@@ -156,7 +156,6 @@ export MR_CMAKE_CROSS_CONFIG=""
 #NOTE: Add install prefix to PKG_CONFIG_PATH
 export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$MR_TARGET_LIB_DIR/pkgconfig"
 
-echo ${MR_TARGET_PREFIX}
 
 if [[ ! -e $MR_PROJECT_DIR/targets/$BUILD_TYPE_DIR/prebuild.txt ]] ;then
         cp -rf  $MR_PROJECT_DIR/prebuild/.  $MR_PROJECT_DIR/targets/$BUILD_TYPE_DIR
@@ -397,7 +396,7 @@ fi
 if [[ -e $FFMPEG_BUILD_DIR && $HAS_BUILD_FFMPEG = 0 ]] ;then
 	cd $FFMPEG_BUILD_DIR
         cp -f "$MR_PROJECT_DIR/scripts/build_ffmpeg.sh" ./
-        #./build_ffmpeg.sh $FFMPEG_BUILD_TYPE
+        ./build_ffmpeg.sh $FFMPEG_BUILD_TYPE
         cd $MR_DOWNLOAD_DIR
 fi
 ############################################################
@@ -457,3 +456,5 @@ if [[ $HAS_BUILD_MRCOMMON = 0 || $HAS_BUILD_GLAD = 0 ]] ;then
 	cmake --install $BUILD_DIR
 fi
 
+
+mv -f $MR_TARGET_PREFIX/bin/*.lib $MR_TARGET_PREFIX/lib/
