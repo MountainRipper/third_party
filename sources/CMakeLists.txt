@@ -57,7 +57,7 @@ install(DIRECTORY mrcommon/include/ DESTINATION include/mrcommon)
 install(TARGETS mrcommon DESTINATION lib)
 file( GLOB MR_BUNDEL_SOURCE mrcommon/bundle/*.cpp )
 add_library( mrbundle STATIC  ${MR_BUNDEL_SOURCE})
-target_link_libraries(mrbundle)
+target_link_libraries(mrbundle PUBLIC glad)
 target_include_directories(mrbundle PRIVATE mrcommon/include ${SOURCE_ROOT_DIR} ${CMAKE_INSTALL_PREFIX}/include ${SOURCE_ROOT_DIR}/../include ${SOURCE_ROOT_DIR}/../include/imgui)
 install(TARGETS mrbundle DESTINATION lib)
 
