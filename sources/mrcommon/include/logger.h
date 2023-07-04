@@ -46,6 +46,8 @@ public:
 #define __PRETTY_FUNCTION__ __FUNCTION__
 #endif
 
+#define MR_FFL_FMT(format) std::string("{} {} {}") + format
+
 #define MR_LOG(level,format, ...) \
     mr::Logger::log_simple(level,mr::fmt_format(format,##__VA_ARGS__).c_str());
 
@@ -67,7 +69,7 @@ public:
 #else//MR_LOGGER_SIMPLE
 
 #define MR_LOG_MORE(level,format, ...) \
-mr::Logger::log(level,mr::fmt_format("{} {} {}"##format,,__FILE__,__PRETTY_FUNCTION__,__LINE__,##__VA_ARGS__).c_str());
+mr::Logger::log(level,mr::fmt_format(MR_FFL_FMT(format),__FILE__,__PRETTY_FUNCTION__,__LINE__,##__VA_ARGS__).c_str());
 
 #define MR_TRACE_MORE(format, ...)  MR_LOG_MORE(mr::Logger::kLogLevelTrace,format,##__VA_ARGS__)
 #define MR_DEBUG_MORE(format, ...)  MR_LOG_MORE(mr::Logger::kLogLevelDebug,format,##__VA_ARGS__)
@@ -82,7 +84,7 @@ mr::Logger::log(level,mr::fmt_format("{} {} {}"##format,,__FILE__,__PRETTY_FUNCT
 {\
  auto result = (call);\
  if(result<0){\
-    mr::Logger::log(level,mr::fmt_format("{} {} {}"##format,,__FILE__,__PRETTY_FUNCTION__,__LINE__,##__VA_ARGS__).c_str());\
+    mr::Logger::log(level,mr::fmt_format(MR_FFL_FMT(format),__FILE__,__PRETTY_FUNCTION__,__LINE__,##__VA_ARGS__).c_str());\
  }\
 }
 
@@ -98,7 +100,7 @@ mr::Logger::log(level,mr::fmt_format("{} {} {}"##format,,__FILE__,__PRETTY_FUNCT
 {\
  auto result = (call);\
  if(!result){\
-    mr::Logger::log(level,mr::fmt_format("{} {} {}"##format,,__FILE__,__PRETTY_FUNCTION__,__LINE__,##__VA_ARGS__).c_str());\
+    mr::Logger::log(level,mr::fmt_format(MR_FFL_FMT(format),__FILE__,__PRETTY_FUNCTION__,__LINE__,##__VA_ARGS__).c_str());\
  }\
 }
 
