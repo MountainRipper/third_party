@@ -7,7 +7,7 @@ namespace mr {
 std::map<std::string,TextureHolder::Image> TextureHolder::images_;
 
 void VideoCutTimeline::show(float height)
-{    
+{
     auto parent_window = GetCurrentWindow();
     PushID(this);
     ImVec2 size = ImVec2(totle_width_*2,height);
@@ -112,21 +112,21 @@ void VideoCutTimeline::show(float height)
     index = 0;
     ImVec2 pos = window->Pos;
     for(auto& item : fragments_){
-         if(select_item == index)
+        if(select_item == index)
             window->DrawList->AddImage(image_l.texture,
-                                   pos + ImVec2(x,0),
-                                   pos + ImVec2(x+range_holder_pixels_,0+height),
-                                   image_l.top_left(),
-                                   image_l.bottom_right());
+                                       pos + ImVec2(x,0),
+                                       pos + ImVec2(x+range_holder_pixels_,0+height),
+                                       image_l.top_left(),
+                                       image_l.bottom_right());
 
         x += fragment_width_this_frame[index];
 
         if(select_item == index)
             window->DrawList->AddImage(image_r.texture,
-                                   pos + ImVec2(x-range_holder_pixels_,0),
-                                   pos + ImVec2(x,0+height),
-                                   image_r.top_left(),
-                                   image_r.bottom_right());
+                                       pos + ImVec2(x-range_holder_pixels_,0),
+                                       pos + ImVec2(x,0+height),
+                                       image_r.top_left(),
+                                       image_r.bottom_right());
 
         index++;
     }

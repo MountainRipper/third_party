@@ -26,13 +26,10 @@ if exist %DIR_MSYS2% (
 )
 
 echo ****** Now open a msys2 shell to build libraries
-echo ****** $ cd /MountainRipper/third_party
-echo ****** $ ./build.sh
 
 echo %1 | findstr "^msvc" >nul
 if %errorlevel% equ 0 (
-	%DIR_MSYS2%\msys2_shell.cmd
+        %DIR_MSYS2%\msys2_shell.cmd -where  %DIR_CUR%
 ) else (
-	echo ****** $ ./build.sh
-	start %DIR_MSYS2%\mingw64.exe
+        %DIR_MSYS2%\msys2_shell.cmd -mingw64 -where  %DIR_CUR%
 )

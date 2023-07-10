@@ -418,7 +418,6 @@ int main(int argc, char *argv[])
     }
 
     SDL_GetWindowSize(window, &win_w, &win_h);
-    showcase->on_init(window,win_w, win_h);
 
     SDL_DisplayMode mode;
     SDL_GetCurrentDisplayMode(SDL_GetWindowDisplayIndex(window),&mode);
@@ -435,6 +434,8 @@ int main(int argc, char *argv[])
     std::vector<mr::ImguiFontResource> fonts{font_noto_sc,font_awesome};
     auto& font_helper = mr::ImGuiHelper::get();
     font_helper.create_default_font(baseFontSize,fonts);
+
+    showcase->on_init(window,win_w, win_h);
     font_helper.build();
 
     glDisable(GL_DEPTH_TEST);

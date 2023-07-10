@@ -267,6 +267,7 @@ if [ $MR_COMPILER = "msvc" ] ;then
     export MR_CMAKE_CROSS_CONFIG="$MR_CMAKE_CROSS_CONFIG -GNinja "
 fi
 
+echo  "=======================================$MR_TARGET_LIB_DIR"
 ############################################################
 search_file $MR_TARGET_LIB_DIR "*spdlog*"
 HAS_BUILD_SPDLOG=$?

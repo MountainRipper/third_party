@@ -70,10 +70,11 @@ function build(){
             make -j install PREFIX=$BUILD_TARGET_DIR
         elif [ $MR_COMPILER = 'msvc' ] ; then
             echo 'Build luajit for MSVC on Windows'
-            #mv /usr/bin/link.exe /usr/bin/link.bak.exe
+            export PATH_OLD=$PATH
+            export PATH=$ORIGINAL_PATH:$PATH
             cd src
-            #cmd  msvcbuild.bat
-            #mv /usr/bin/link.bak.exe /usr/bin/link.exe
+            cmd /C "cmd /C msvcbuild.bat"
+            export PATH=$PATH_OLD
         else
           echo "ERROR: WINDOWS BUILD BAD MATCH CROSS COMPILE TARGET:$MR_TARGET_ARCH COMPILER: $MR_COMPILER"
           return -1
