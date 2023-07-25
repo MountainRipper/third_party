@@ -48,17 +48,20 @@ add_library( compressor STATIC compressor/miniz.c compressor/zstd.c)
 target_include_directories(compressor PRIVATE  ${SOURCE_ROOT_DIR}/../include)
 install(TARGETS compressor  DESTINATION lib)
 
+file( GLOB IMGUI_STB_BUNDEL_SOURCE imgui_stb_bundle/*.cpp )
+add_library( imgui_stb STATIC  ${IMGUI_STB_BUNDEL_SOURCE})
+target_link_libraries(imgui_stb PUBLIC glad)
+target_include_directories(imgui_stb PRIVATE ${SOURCE_ROOT_DIR} ${CMAKE_INSTALL_PREFIX}/include ${SOURCE_ROOT_DIR}/../include ${SOURCE_ROOT_DIR}/../include/imgui)
+install(TARGETS imgui_stb DESTINATION lib)
+
 file( GLOB MR_COMMON_SOURCE mrcommon/*.cpp )
 add_library( mrcommon STATIC  ${MR_COMMON_SOURCE})
-target_include_directories(mrcommon PRIVATE mrcommon/include ${CMAKE_INSTALL_PREFIX}/include ${SOURCE_ROOT_DIR}/../include)
-target_link_libraries(mrcommon spdlog)
+target_include_directories(mrcommon PRIVATE mrcommon/include ${CMAKE_INSTALL_PREFIX}/include ${SOURCE_ROOT_DIR}/../include ${SOURCE_ROOT_DIR}/../include/imgui)
+target_link_libraries(mrcommon PUBLIC spdlog imgui_stb)
 set_property(TARGET mrcommon PROPERTY POSITION_INDEPENDENT_CODE ON)
 install(DIRECTORY mrcommon/include/ DESTINATION include/mrcommon)
 install(TARGETS mrcommon DESTINATION lib)
-file( GLOB MR_BUNDEL_SOURCE mrcommon/bundle/*.cpp )
-add_library( mrbundle STATIC  ${MR_BUNDEL_SOURCE})
-target_link_libraries(mrbundle PUBLIC glad)
-target_include_directories(mrbundle PRIVATE mrcommon/include ${SOURCE_ROOT_DIR} ${CMAKE_INSTALL_PREFIX}/include ${SOURCE_ROOT_DIR}/../include ${SOURCE_ROOT_DIR}/../include/imgui)
-install(TARGETS mrbundle DESTINATION lib)
+
+
 
 add_subdirectory(minizip)

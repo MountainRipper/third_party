@@ -21,6 +21,9 @@ fi
 cd $BUILD_DIR
 echo "build luajit in $(pwd)"
 
+sed -i "s/#XCFLAGS+= -DLUAJIT_ENABLE_LUA52COMPAT/XCFLAGS+= -DLUAJIT_ENABLE_LUA52COMPAT/" src/Makefile
+sed -i "s#/D_CRT_SECURE_NO_DEPRECATE#/D_CRT_SECURE_NO_DEPRECATE /DLUAJIT_ENABLE_LUA52COMPAT#" src/msvcbuild.bat
+
 function build(){
   if [ $MR_TARGET_OS = 'linux' ] ; then
 	  
