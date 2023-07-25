@@ -75,14 +75,13 @@ function build(){
             cd src
             cmd /C "cmd /C msvcbuild.bat"
             export PATH=$PATH_OLD
+            cp -rf lauxlib.h  lua.h  lua.hpp  luaconf.h  luajit.h  lualib.h $MR_TARGET_PREFIX/include/luajit
+            cp -rf *.dll *.exe $MR_TARGET_PREFIX/bin
+            cp -rf *.lib $MR_TARGET_PREFIX/lib
         else
           echo "ERROR: WINDOWS BUILD BAD MATCH CROSS COMPILE TARGET:$MR_TARGET_ARCH COMPILER: $MR_COMPILER"
           return -1
-        fi
-	cp $BUILD_DIR/src/*.dll $MR_TARGET_PREFIX/bin
-	cp $BUILD_DIR/src/*.exe $MR_TARGET_PREFIX/bin
-	cp $BUILD_DIR/src/*.a $MR_TARGET_PREFIX/lib
-        cp $BUILD_DIR/src/*.lib $MR_TARGET_PREFIX/lib
+        fi	
   elif [ $MR_TARGET_OS = 'ios' ] ;then
     echo'Build luajit for iOS'
   elif [ $MR_TARGET_OS = 'bsd' ] ;then
