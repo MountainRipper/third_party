@@ -41,6 +41,7 @@
 #elif defined(_WIN64) || defined(_WIN32)
     #define OS_TYPE 3
    #define OS_WINDOWS 1
+   #include <imgui/backends/imgui_impl_win32.h>
 #elif __APPLE__
 #include "TargetConditionals.h"
     #if TARGET_OS_IPHONE && TARGET_IPHONE_SIMULATOR
@@ -399,6 +400,10 @@ int main(int argc, char *argv[])
                                        event.key.keysym.scancode,
                                        event.key.keysym.mod);
                 break;
+            }
+            case SDL_TEXTINPUT:{
+                showcase->char_callback(event.text.text,
+                                       event.text.type);
             }
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP:{

@@ -13,9 +13,3 @@
 #include <imgui/misc/single_file/imgui_single_file.h>
 
 #include <imgui/misc/cpp/imgui_stdlib.cpp>
-
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
-
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb/stb_image_write.h>
