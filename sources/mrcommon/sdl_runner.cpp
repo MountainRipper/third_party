@@ -222,8 +222,7 @@ int main(int argc, char *argv[])
       ("b,backend", "window system backend[glx,egl,wayland,kmsdrm,wgl,agl,eagl,cococa]", cxxopts::value<std::string>()->default_value(""))
       ("v,version", "graphic api version", cxxopts::value<double>()->default_value("0.0"))
       ("s,vsync", "vsync for renderer", cxxopts::value<bool>()->default_value("true"))
-      ("h,help", "show help message")
-      ;
+      ("h,help", "show help message");
 
     showcase->on_set_params(options);
     auto result = options.parse(argc,argv);

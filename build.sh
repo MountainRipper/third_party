@@ -324,13 +324,13 @@ if [[ -e $SPDLOG_DIR && $HAS_BUILD_SPDLOG == 0 ]] ;then
 fi
 
 ############################################################
-ZLIB_URI="https://www.zlib.net/zlib-1.2.13.tar.gz"
-ZLIB_FILE="zlib-1.2.13.tar.gz"
-ZLIB_DIR="zlib-1.2.13"
+ZLIB_URI="https://www.zlib.net/zlib-1.3.1.tar.gz"
+ZLIB_FILE="zlib-1.3.1.tar.gz"
+ZLIB_DIR="zlib-1.3.1"
 fetch_lib $ZLIB_URI $ZLIB_DIR $ZLIB_FILE
 if [[ -e $ZLIB_DIR && $HAS_BUILD_ZLIB == 0 ]] ;then
         cd $ZLIB_DIR
-        BUILD_DIR="$MR_BUILD_TEMP_DIR/zlib-1.2.13"
+        BUILD_DIR="$MR_BUILD_TEMP_DIR/zlib-1.3.1"
         cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
         cmake --build $BUILD_DIR -j
         cmake --install $BUILD_DIR
@@ -386,9 +386,9 @@ if [[ -e $LIBX264_BUILD_DIR && $HAS_BUILD_LIBX264 = 0 ]] ;then
 fi
 
 ############################################################
-FFMPEG_URI="https://ffmpeg.org/releases/ffmpeg-5.1.2.tar.gz"
-FFMPEG_FILE="ffmpeg-5.1.2.tar.gz"
-FFMPEG_DIR="ffmpeg-5.1.2"
+FFMPEG_URI="https://ffmpeg.org/releases/ffmpeg-6.1.tar.gz"
+FFMPEG_FILE="ffmpeg-6.1.tar.gz"
+FFMPEG_DIR="ffmpeg-6.1"
 FFMPEG_BUILD_DIR=$MR_BUILD_TEMP_DIR/$FFMPEG_DIR
 fetch_lib $FFMPEG_URI $FFMPEG_DIR $FFMPEG_FILE 
 if [ ! -e $FFMPEG_BUILD_DIR ] ;then
