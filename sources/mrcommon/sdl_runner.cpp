@@ -41,6 +41,7 @@
 #elif defined(_WIN64) || defined(_WIN32)
     #define OS_TYPE 3
    #define OS_WINDOWS 1
+   #include <imgui/backends/imgui_impl_win32.h>
 #elif __APPLE__
 #include "TargetConditionals.h"
     #if TARGET_OS_IPHONE && TARGET_IPHONE_SIMULATOR
@@ -221,8 +222,7 @@ int main(int argc, char *argv[])
       ("b,backend", "window system backend[glx,egl,wayland,kmsdrm,wgl,agl,eagl,cococa]", cxxopts::value<std::string>()->default_value(""))
       ("v,version", "graphic api version", cxxopts::value<double>()->default_value("0.0"))
       ("s,vsync", "vsync for renderer", cxxopts::value<bool>()->default_value("true"))
-      ("h,help", "show help message")
-      ;
+      ("h,help", "show help message");
 
     showcase->on_set_params(options);
     auto result = options.parse(argc,argv);

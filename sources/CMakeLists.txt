@@ -37,6 +37,10 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         ${SOURCE_ROOT_DIR}/glad/src/gles2.c
     )
 endif()
+
+include_directories(/opt/homebrew/inlude)
+link_directories(/opt/homebrew/lib)
+
 file( GLOB GLAD_HEADER glad/include/glad/*.h )
 add_library( glad STATIC ${GLAD_SOURCE} ${GLAD_HEADER})
 target_include_directories(glad PUBLIC ${SOURCE_ROOT_DIR}/glad/include)

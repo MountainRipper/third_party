@@ -40,11 +40,10 @@ std::string current_executable_path() {
 
 std::string current_executable_dir() {
     std::string executablePath = current_executable_path();
-    char* exePath = new char[executablePath.length()];
+    char exePath[MAX_PATH];
     strcpy(exePath, executablePath.c_str());
     PathRemoveFileSpecA(exePath);
     std::string directory = std::string(exePath);
-    delete[] exePath;
     return directory;
 }
 
