@@ -297,6 +297,9 @@ HAS_BUILD_OPENAL=$?
 search_file $MR_TARGET_LIB_DIR "*png*"
 HAS_BUILD_LIBPNG=$?
 
+search_file $MR_TARGET_LIB_DIR "*ssl*"
+HAS_BUILD_OPENSSL=$?
+
 search_file $MR_TARGET_LIB_DIR "*freetype*"
 HAS_BUILD_FREETYPE=$?
 
@@ -324,13 +327,13 @@ if [[ -e $SPDLOG_DIR && $HAS_BUILD_SPDLOG == 0 ]] ;then
 fi
 
 ############################################################
-ZLIB_URI="https://www.zlib.net/zlib-1.2.13.tar.gz"
-ZLIB_FILE="zlib-1.2.13.tar.gz"
-ZLIB_DIR="zlib-1.2.13"
+ZLIB_URI="https://www.zlib.net/zlib-1.3.1.tar.gz"
+ZLIB_FILE="zlib-1.3.1.tar.gz"
+ZLIB_DIR="zlib-1.3.1"
 fetch_lib $ZLIB_URI $ZLIB_DIR $ZLIB_FILE
 if [[ -e $ZLIB_DIR && $HAS_BUILD_ZLIB == 0 ]] ;then
         cd $ZLIB_DIR
-        BUILD_DIR="$MR_BUILD_TEMP_DIR/zlib-1.2.13"
+        BUILD_DIR="$MR_BUILD_TEMP_DIR/zlib-1.3.1"
         cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
         cmake --build $BUILD_DIR -j
         cmake --install $BUILD_DIR
@@ -386,9 +389,9 @@ if [[ -e $LIBX264_BUILD_DIR && $HAS_BUILD_LIBX264 = 0 ]] ;then
 fi
 
 ############################################################
-FFMPEG_URI="https://ffmpeg.org/releases/ffmpeg-5.1.2.tar.gz"
-FFMPEG_FILE="ffmpeg-5.1.2.tar.gz"
-FFMPEG_DIR="ffmpeg-5.1.2"
+FFMPEG_URI="https://ffmpeg.org/releases/ffmpeg-7.0.2.tar.gz"
+FFMPEG_FILE="ffmpeg-7.0.2.tar.gz"
+FFMPEG_DIR="ffmpeg-7.0.2"
 FFMPEG_BUILD_DIR=$MR_BUILD_TEMP_DIR/$FFMPEG_DIR
 fetch_lib $FFMPEG_URI $FFMPEG_DIR $FFMPEG_FILE 
 if [ ! -e $FFMPEG_BUILD_DIR ] ;then
@@ -448,6 +451,20 @@ if [[ -e $LIBPNG_DIR && $HAS_BUILD_LIBPNG = 0 ]] ;then
         cd $MR_DOWNLOAD_DIR
 fi
 
+OPENSSL_URI="https://github.com/openssl/openssl/releases/download/openssl-3.3.2/openssl-3.3.2.tar.gz"
+OPENSSL_FILE="openssl-3.3.2.tar.gz"
+OPENSSL_DIR="openssl-3.3.2"
+fetch_lib $OPENSSL_URI $OPENSSL_DIR $OPENSSL_FILE 
+OPENSSL_BUILD_DIR=$MR_BUILD_TEMP_DIR/$OPENSSL_DIR
+if [ ! -e $OPENSSL_BUILD_DIR ] ;then
+ 	cp -r $OPENSSL_DIR  $OPENSSL_BUILD_DIR
+fi
+if [[ -e $OPENSSL_BUILD_DIR && $HAS_BUILD_OPENSSL = 0 ]] ;then
+	cd $OPENSSL_BUILD_DIR
+        ./Configure -shared no-test --prefix=$MR_TARGET_PREFIX
+        make install 
+        cd $MR_DOWNLOAD_DIR
+fi
 ############################################################
 if [[ $HAS_BUILD_MRCOMMON = 0 || $HAS_BUILD_GLAD = 0 ]] ;then
 	cd "$MR_PROJECT_DIR/sources"

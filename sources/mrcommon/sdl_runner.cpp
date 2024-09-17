@@ -400,6 +400,10 @@ int main(int argc, char *argv[])
                                        event.key.keysym.mod);
                 break;
             }
+            case SDL_TEXTINPUT:{
+                showcase->char_callback(event.text.text,
+                                       event.text.type);
+            }
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP:{
                 showcase->button_callback(event.button.button,

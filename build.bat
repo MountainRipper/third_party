@@ -1,6 +1,6 @@
 @echo off
-set http_proxy=http://127.0.0.1:1080
-set https_proxy=http://127.0.0.1:1080
+set http_proxy=http://192.168.231.1:1095
+set https_proxy=http://192.168.231.1:1095
 set DIR_CUR=%~dp0
 set DIR_TOOLS=%DIR_CUR%tools
 SET INSTALLER_MSYS2=%DIR_TOOLS%\msys2-x86_64-20230127.exe
