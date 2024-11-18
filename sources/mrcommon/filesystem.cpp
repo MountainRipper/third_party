@@ -93,7 +93,7 @@ std::string current_executable_path() {
 }
 
 std::string current_executable_dir() {
-    std::string executablePath = getExecutablePath();
+    std::string executablePath = current_executable_path();
     char *executablePathStr = new char[executablePath.length() + 1];
     strcpy(executablePathStr, executablePath.c_str());
     char* executableDir = dirname(executablePathStr);

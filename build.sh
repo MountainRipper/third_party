@@ -70,7 +70,7 @@ function search_file(){
 export MR_TARGET_OS=$1
 export MR_TARGET_ARCH=$2
 export MR_HOST_OS=$(uname)
-export MR_HOST_OS="${MR_HOST_OS,,}"
+export MR_HOST_OS=`echo $MR_HOST_OS | awk '{print tolower($0)}'`
 export MR_HOST_ARCH=$(uname -m)
 export MR_COMPILER=""
 export MR_PROJECT_DIR=$(pwd)
@@ -134,6 +134,8 @@ case $MR_HOST_OS in
         esac
     ;;
 esac
+
+echo ">>>>>>>OS:$MR_HOST_OS"
 
 . config.cfg
 export CROSS_AARCH64_LINUX_GCC=$AARCH64_LINUX_GNU_GCC
@@ -461,7 +463,7 @@ if [ ! -e $OPENSSL_BUILD_DIR ] ;then
 fi
 if [[ -e $OPENSSL_BUILD_DIR && $HAS_BUILD_OPENSSL = 0 ]] ;then
 	cd $OPENSSL_BUILD_DIR
-        ./Configure -shared no-test --prefix=$MR_TARGET_PREFIX
+        ./Configure -shared no-tests --prefix=$MR_TARGET_PREFIX
         make install 
         cd $MR_DOWNLOAD_DIR
 fi

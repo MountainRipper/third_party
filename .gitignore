@@ -35,3 +35,4 @@ targets
 *.user
 build*
 _*
+.DS_Store
