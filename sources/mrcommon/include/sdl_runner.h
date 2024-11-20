@@ -40,8 +40,6 @@ public:
                                int type,/*SDL_KEYDOWN,SDL_KEYUP*/
                                int scancode,/*enum SDL_Scancode*/
                                int mods/*current key modifiers*/) = 0;
-    virtual void char_callback(const char* key, /*char text[SDL_TEXTINPUTEVENT_TEXT_SIZE=32];*/
-                              int type/*SDL_TEXTINPUT*/) = 0;
     virtual void error_callback(int err, const char* desc) = 0;
     virtual void resize_callback( int width, int height) = 0;
 

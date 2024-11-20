@@ -401,8 +401,8 @@ int main(int argc, char *argv[])
                 break;
             }
             case SDL_TEXTINPUT:{
-                showcase->char_callback(event.text.text,
-                                       event.text.type);
+                //showcase->char_callback(event.text.text,
+                //                       event.text.type);
             }
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP:{
