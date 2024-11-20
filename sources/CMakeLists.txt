@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 project(mrcommon)
 SET(SOURCE_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+SET(CMAKE_CXX_STANDARD 17)
+include_directories(/opt/homebrew/include)
+link_directories(/opt/homebrew/lib)
 
 ########################### GLAD
 SET(GLAD_SOURCE "")
@@ -38,8 +41,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     )
 endif()
 
-include_directories(/opt/homebrew/inlude)
-link_directories(/opt/homebrew/lib)
+
 
 file( GLOB GLAD_HEADER glad/include/glad/*.h )
 add_library( glad STATIC ${GLAD_SOURCE} ${GLAD_HEADER})

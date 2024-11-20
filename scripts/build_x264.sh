@@ -44,6 +44,10 @@ function build(){
         make install
     elif [ $MR_TARGET_OS = 'darwin' ] ;then
     	echo 'Build x264 for macOS'
+        CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-shared"
+	 	./configure $CONFIGURE_PARAM
+        make -j
+        make install
     elif [ $MR_TARGET_OS = 'windows' ] ;then
         if [ $MR_COMPILER = 'mingw' ] ; then
             echo 'Build x264 for MinGW'
