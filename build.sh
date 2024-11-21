@@ -150,6 +150,7 @@ export MR_PREBUILD_DIR="$MR_PROJECT_DIR/prebuild/$MR_TARGET_OS-$MR_COMPILER_VER-
 export MR_TARGET_PREFIX="$MR_PROJECT_DIR/targets/${BUILD_TYPE_DIR}/$MR_TARGET_OS-$MR_COMPILER_VER-$MR_TARGET_ARCH"
 export MR_TARGET_BIN_DIR="$MR_TARGET_PREFIX/bin"
 export MR_TARGET_LIB_DIR="$MR_TARGET_PREFIX/lib"
+export MR_TARGET_LIB64_DIR="$MR_TARGET_PREFIX/lib64"
 export MR_TARGET_INCLUDE_DIR="$MR_TARGET_PREFIX/include"
 export MR_DOWNLOAD_DIR="$MR_PROJECT_DIR/_download"
 export MR_BUILD_TEMP_DIR="$MR_PROJECT_DIR/_build_temp/${BUILD_TYPE_DIR}/$MR_TARGET_OS-$MR_COMPILER_VER-$MR_TARGET_ARCH"
@@ -168,6 +169,7 @@ chmod a+x $MR_PROJECT_DIR/scripts/build_ffmpeg.sh
 mkdir -p $MR_BUILD_TEMP_DIR
 mkdir -p $MR_TARGET_BIN_DIR
 mkdir -p $MR_TARGET_LIB_DIR
+mkdir -p $MR_TARGET_LIB64_DIR
 mkdir -p $MR_TARGET_INCLUDE_DIR
 
 
@@ -299,7 +301,7 @@ HAS_BUILD_OPENAL=$?
 search_file $MR_TARGET_LIB_DIR "*png*"
 HAS_BUILD_LIBPNG=$?
 
-search_file $MR_TARGET_LIB_DIR "*ssl*"
+search_file $MR_TARGET_LIB64_DIR "*ssl*"
 HAS_BUILD_OPENSSL=$?
 
 search_file $MR_TARGET_LIB_DIR "*freetype*"
@@ -463,7 +465,8 @@ if [ ! -e $OPENSSL_BUILD_DIR ] ;then
 fi
 if [[ -e $OPENSSL_BUILD_DIR && $HAS_BUILD_OPENSSL = 0 ]] ;then
 	cd $OPENSSL_BUILD_DIR
-        ./Configure -shared no-tests --prefix=$MR_TARGET_PREFIX
+        ./Configure -shared no-tests no-unit-test --prefix=$MR_TARGET_PREFIX --release
+        make
         make install 
         cd $MR_DOWNLOAD_DIR
 fi
