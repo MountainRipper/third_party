@@ -119,7 +119,7 @@ case $MR_HOST_OS in
         export MR_CC=cl
         export MR_CXX=cl
         export MR_COMPILER="msvc"
-        pacman -S --noconfirm --needed nasm yasm git unzip
+        pacman -S --noconfirm --needed cmake make nasm yasm git unzip
         sed -i "s#rem set MSYS2_PATH_TYPE=inherit#set MSYS2_PATH_TYPE=inherit#" tools/msys2/msys2_shell.cmd
 
         case $VCINSTALLDIR  in

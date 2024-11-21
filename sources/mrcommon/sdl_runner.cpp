@@ -354,13 +354,16 @@ int main(int argc, char *argv[])
     SDL_GetWindowSize(window, &win_w, &win_h);
 
 
+    int gl_width = 1920;
+    int gl_height = 1080;
+    SDL_GL_GetDrawableSize(window,&gl_width, &gl_height);
     SDL_DisplayMode mode;
     SDL_GetCurrentDisplayMode(SDL_GetWindowDisplayIndex(window),&mode);
     auto global_scale  = std::max(mode.w / 1920.0, 1.0);
     float baseFontSize = 17.0f * global_scale;
     ImFontConfig icons_config;
     icons_config.PixelSnapH = true;
-    icons_config.OversampleH = 1;
+    icons_config.OversampleV = icons_config.OversampleH = gl_width*1.0/mode.w;
     icons_config.MergeMode = false;
     ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(notosans_sc_level_1_compressed_data_base85,baseFontSize,&icons_config,io.Fonts->GetGlyphRangesChineseFull());
 
