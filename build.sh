@@ -301,7 +301,7 @@ HAS_BUILD_OPENAL=$?
 search_file $MR_TARGET_LIB_DIR "*png*"
 HAS_BUILD_LIBPNG=$?
 
-search_file $MR_TARGET_LIB64_DIR "*ssl*"
+search_file $MR_TARGET_LIB_DIR "*ssl*"
 HAS_BUILD_OPENSSL=$?
 
 search_file $MR_TARGET_LIB_DIR "*freetype*"
@@ -480,4 +480,5 @@ if [[ $HAS_BUILD_MRCOMMON = 0 || $HAS_BUILD_GLAD = 0 ]] ;then
 fi
 
 
-mv -f $MR_TARGET_PREFIX/bin/*.lib $MR_TARGET_PREFIX/lib/
+cp -rf $MR_TARGET_PREFIX/bin/*.lib $MR_TARGET_PREFIX/lib/
+cp -rf $MR_TARGET_PREFIX/lib64/* $MR_TARGET_PREFIX/lib/

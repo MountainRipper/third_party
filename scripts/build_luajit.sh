@@ -67,6 +67,9 @@ function build(){
       cp -rf $BUILD_TARGET_DIR/lib/libluajit-5.1.so.2.1.0 $TARGET_LIB
   elif [ $MR_TARGET_OS = 'darwin' ] ;then
     echo 'Build luajit for macOS'
+    MACOSX_DEPLOYMENT_TARGET=10.12 make -j install PREFIX=$BUILD_TARGET_DIR
+    cp -rf $BUILD_TARGET_DIR/lib/libluajit-5.1.2.1.ROLLING.dylib $TARGET_LIB
+    cp -rf $BUILD_TARGET_DIR/lib/libluajit-5.1.a "$MR_TARGET_PREFIX/lib/libluajit.a"
   elif [[ $MR_TARGET_OS = 'windows' ]] ;then
         if [ $MR_COMPILER = 'mingw' ] ; then
             echo 'Build luajit for MinGW on Windows'
@@ -87,6 +90,9 @@ function build(){
         fi	
   elif [ $MR_TARGET_OS = 'ios' ] ;then
     echo'Build luajit for iOS'
+  elif [ $MR_TARGET_OS = 'darwin' ] ;then
+    echo 'Build for x86_64 MacOS'
+    make -j install PREFIX=$BUILD_TARGET_DIR
   elif [ $MR_TARGET_OS = 'bsd' ] ;then
     echo 'Build luajit for BSD'
   fi
