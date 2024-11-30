@@ -265,19 +265,6 @@ int main(int argc, char *argv[])
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
         }
 
-        if(version == 0)
-            version = 3.0;
-
-        if(version == 2.0){
-            // GL ES 2.0 + GLSL 100
-            glsl_version = "#version 100";
-        }
-        else if(version >= 3.0 && version < 3.2){
-            glsl_version = "#version 130";
-        }
-        else{
-            glsl_version = "#version 150";
-        }
         double intpart = 0,fractpart = 0;
         fractpart = modf (version , &intpart);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, int(intpart));
@@ -321,6 +308,44 @@ int main(int argc, char *argv[])
           printf("Cannot load GL.\n");
           exit(1);
         }
+
+        auto string_get_first_number = [](const char* text)->double{
+            if(!text)
+                return 0;
+            int32_t len = strlen(text);
+            for(int index = 0; index < len ; index++){
+                char ch = text[index];
+                if( ch > '0' && ch <= '9'){
+                    return atof(text + index);
+                }
+            }
+            return 0;
+        };
+
+        const char* vendor_str = (const char*)glGetString(GL_VENDOR);
+        const char* renderer_str = (const char*)glGetString(GL_RENDERER);
+        const char* version_str = (const char*)glGetString(GL_VERSION);
+
+
+        if(version == 0)
+            version = version_str?string_get_first_number(version_str):4.1;
+
+        if(version == 2.0){
+            // GL ES 2.0 + GLSL 100
+            glsl_version = "#version 100";
+        }
+        else if(version >= 3.0 && version < 3.2){
+            glsl_version = "#version 130";
+        }
+        else{
+            glsl_version = "#version 150";
+        }
+        fprintf(stderr,"Vendor:%s\nRenderer:%s\nVersion:%s\n GL_Version:%.2f\n GLSL_Version:%s\n",
+                vendor_str?vendor_str:"NULL",
+                renderer_str?renderer_str:"NULL",
+                version_str?version_str:"NULL",
+                version,
+                glsl_version);
     }
 
 //    SDL_AddEventWatch([](void *userdata, SDL_Event * event)->int{
@@ -342,13 +367,6 @@ int main(int argc, char *argv[])
     if(graphic == "opengl" || graphic == "opengles"){
         ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
         ImGui_ImplOpenGL3_Init(glsl_version);
-        const char* vendor = (const char*)glGetString(GL_VENDOR);
-        const char* renderer = (const char*)glGetString(GL_RENDERER);
-        const char* version = (const char*)glGetString(GL_VERSION);
-        fprintf(stderr,"Vendor:%s\nRenderer:%s\nVersion:%s\n",
-                vendor?vendor:"NULL",
-                renderer?renderer:"NULL",
-                version?version:"NULL");
     }
 
     SDL_GetWindowSize(window, &win_w, &win_h);
