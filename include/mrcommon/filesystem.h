@@ -1,3 +1,17 @@
+#ifndef MR_COMMON_FILESYSTEM_H_
+#define MR_COMMON_FILESYSTEM_H_
+
+#include <string>
+namespace mr {
+
+std::string current_executable_path();
+std::string current_executable_dir();
+std::string merge_paths(std::string parent, std::string child);
+
+}
+
+
+#if defined(IMPLEMENT_MR_FILESYSTEM)
 #include <cstring>
 #if defined(_WIN32)
 #include <windows.h>
@@ -108,3 +122,7 @@ std::string merge_paths(std::string pathA, std::string pathB) {
 #endif
 
 }
+
+#end //IMPLEMENT_MR_FILESYSTEM
+
+#endif
