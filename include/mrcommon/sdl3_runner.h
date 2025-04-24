@@ -41,9 +41,13 @@ public:
     virtual void on_log(const std::string_view log){
         std::cerr<<log;
     }
+    float scale(){
+        return scale_;
+    }
 public:
     std::string name_;
     std::string describe_;
+    float scale_ = 1.0;
 };
 
 extern SDLShowcaseBase* sdl_runner_create_showcase();
@@ -290,7 +294,7 @@ int main(int argc, char *argv[])
         SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
         SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-        window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+        window_flags |= (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     }
 
 // From 2.0.18: Enable native IME.
@@ -390,12 +394,11 @@ int main(int argc, char *argv[])
     int gl_height = 1080;
     SDL_GetWindowSizeInPixels(window,&gl_width, &gl_height);
 
-    auto mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay());
-    auto global_scale  = std::max(mode->w / 1920.0, 1.0);
+    auto global_scale  = std::max(gl_width / 1920.0, 1.0);
     float baseFontSize = 17.0f * global_scale;
     ImFontConfig icons_config;
     icons_config.PixelSnapH = true;
-    icons_config.OversampleV = icons_config.OversampleH = gl_width*1.0/mode->w;
+    icons_config.OversampleV = icons_config.OversampleH = gl_width*1.0/win_w;
     icons_config.MergeMode = false;
     ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(notosans_sc_level_1_compressed_data_base85,baseFontSize,&icons_config,io.Fonts->GetGlyphRangesChineseFull());
 
@@ -404,8 +407,10 @@ int main(int argc, char *argv[])
     static const ImWchar icons_ranges[] = { ICON_MIN_MD, ICON_MAX_16_MD, 0 };
     ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(font_awesome_solid_compressed_data_base85,baseFontSize,&icons_config,icons_ranges);
 
-    showcase->on_init(window,win_w, win_h);
+    showcase->scale_ = gl_width*1.0/win_w;
+    showcase->on_init(window,gl_width, gl_height);
     ImGui::GetIO().Fonts->Build();
+    ImGui::GetIO().FontGlobalScale = 1.0/showcase->scale_;
 
     glDisable(GL_DEPTH_TEST);
     MR_GL_CHECK(kLogError, "glDisable(GL_DEPTH_TEST)");
@@ -455,7 +460,9 @@ int main(int argc, char *argv[])
             case SDL_EVENT_WINDOW_RESIZED:{
                 win_w = event.window.data1;
                 win_h = event.window.data2;
-                showcase->resize_callback(win_w,win_h);
+                SDL_GetWindowSizeInPixels(window,&gl_width, &gl_height);
+                showcase->scale_ = gl_width*1.0/win_w;
+                showcase->resize_callback(gl_width,gl_height);
                 break;
             }
             default:
@@ -467,7 +474,7 @@ int main(int argc, char *argv[])
                 done = true;
         }
 
-        glViewport(0, 0, win_w, win_h);
+        glViewport(0, 0, gl_width, gl_height);
 
         if(opengl){
             ImGui_ImplOpenGL3_NewFrame();
