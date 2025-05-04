@@ -310,11 +310,21 @@ HAS_BUILD_FREETYPE=$?
 search_file $MR_TARGET_LIB_DIR "*glad*"
 HAS_BUILD_GLAD=$?
 
-search_file $MR_TARGET_LIB_DIR "*mrcommon*"
+search_file $MR_TARGET_LIB_DIR "*mp3lame*"
 HAS_BUILD_MRCOMMON=$?
 
 mkdir -p $MR_DOWNLOAD_DIR
 cd $MR_DOWNLOAD_DIR
+
+############################################################
+if [[ $HAS_BUILD_MRCOMMON = 0 || $HAS_BUILD_GLAD = 0 ]] ;then
+	cd "$MR_PROJECT_DIR/sources"
+	BUILD_DIR="$MR_BUILD_TEMP_DIR/sources"
+	cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
+        cmake --build $BUILD_DIR -j
+	cmake --install $BUILD_DIR
+        cd $MR_DOWNLOAD_DIR
+fi
 
 ############################################################
 SPDLOG_URI="https://github.com/gabime/spdlog/archive/refs/tags/v1.11.0.zip"
@@ -393,9 +403,9 @@ if [[ -e $LIBX264_BUILD_DIR && $HAS_BUILD_LIBX264 = 0 ]] ;then
 fi
 
 ############################################################
-FFMPEG_URI="https://ffmpeg.org/releases/ffmpeg-7.0.2.tar.gz"
-FFMPEG_FILE="ffmpeg-7.0.2.tar.gz"
-FFMPEG_DIR="ffmpeg-7.0.2"
+FFMPEG_URI="https://ffmpeg.org/releases/ffmpeg-7.1.1.tar.gz"
+FFMPEG_FILE="ffmpeg-7.1.1.tar.gz"
+FFMPEG_DIR="ffmpeg-7.1.1"
 FFMPEG_BUILD_DIR=$MR_BUILD_TEMP_DIR/$FFMPEG_DIR
 fetch_lib $FFMPEG_URI $FFMPEG_DIR $FFMPEG_FILE 
 if [ ! -e $FFMPEG_BUILD_DIR ] ;then
@@ -470,14 +480,7 @@ if [[ -e $OPENSSL_BUILD_DIR && $HAS_BUILD_OPENSSL = 0 ]] ;then
         make install 
         cd $MR_DOWNLOAD_DIR
 fi
-############################################################
-if [[ $HAS_BUILD_MRCOMMON = 0 || $HAS_BUILD_GLAD = 0 ]] ;then
-	cd "$MR_PROJECT_DIR/sources"
-	BUILD_DIR="$MR_BUILD_TEMP_DIR/sources"
-	cmake $MR_CMAKE_CROSS_CONFIG -B $BUILD_DIR .
-        cmake --build $BUILD_DIR -j
-	cmake --install $BUILD_DIR
-fi
+
 
 
 cp -rf $MR_TARGET_PREFIX/bin/*.lib $MR_TARGET_PREFIX/lib/

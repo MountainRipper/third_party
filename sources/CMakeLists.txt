@@ -66,3 +66,4 @@ install(TARGETS compressor  DESTINATION lib)
 
 
 add_subdirectory(minizip)
+add_subdirectory(mp3lame)

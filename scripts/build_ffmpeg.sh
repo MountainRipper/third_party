@@ -11,10 +11,11 @@ elif [ $BUILD_PARAM = 'mini' ] ; then
 	ENABLED_COMPONENTS="
 	--disable-postproc \
 	--disable-decoders --enable-decoder=h264,hevc,av1,vp8,vp9,prores,aac,mp3,vorbis,pcm* \
-    --disable-encoders --enable-encoder=libx264,aac,prores,h264_*,hevc_* \
+    --disable-encoders --enable-encoder=libx264,libmp3lame,aac,prores,h264_*,hevc_* \
 	--disable-demuxers --enable-demuxer=mp4,mov,avi,matroska,flv,asf,live_flv,h264,ogg,aac,mp3,wav \
 	--disable-muxers --enable-muxer=mp4,mov,flv,wav,aac \
-	--disable-parsers --enable-parser=h264,hevc,vp8,vp9,av1,aac*" 
+	--disable-parsers --enable-parser=h264,hevc,vp8,vp9,av1,aac* \
+    --enable-libmp3lame --enable-libx264"
 elif [ $BUILD_PARAM = 'tiny' ] ; then
 	ENABLED_COMPONENTS="
 	--disable-postproc \
@@ -89,8 +90,8 @@ function build(){
        CONFIGURE_PARAM="$CONFIGURE_PARAM --enable-shared --extra-cflags=\"-I$MR_TARGET_INCLUDE_DIR$M32_FLAG\" --extra-ldflags=\"-L$MR_TARGET_LIB_DIR$M32_FLAG\""
        echo ">>>>>>>>>>Build ffmpeg for macOS to $CONFIGURE_PARAM"
 	   ./configure $CONFIGURE_PARAM
-        make -j
-	    make install
+       make -j
+	   make install
     elif [[ $MR_TARGET_OS = 'windows' ]] ;then
 
         if [ $MR_COMPILER = 'mingw' ] ; then
@@ -107,8 +108,8 @@ function build(){
           return -1
         fi
         ./configure $CONFIGURE_PARAM
-	make -j
-	make install        
+	    make -j
+	    make install        
     elif [ $MR_TARGET_OS = 'ios' ] ;then
         echo'Build luajit for iOS'
     elif [ $MR_TARGET_OS = 'bsd' ] ;then

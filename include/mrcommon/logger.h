@@ -133,7 +133,7 @@ private:
 
 
 #define MR_LOG(L, format, ...) SPDLOG_LOGGER_CALL(Logger::instance().logger(), (spdlog::level::level_enum)L, format, ##__VA_ARGS__);
-#define MR_LOG_DEAULT(  format, ...) SPDLOG_LOGGER_CALL(Logger::instance().logger(),(spdlog::level::level_enum)Logger::instance().level(), format, ##__VA_ARGS__);
+//#define MR_LOG_DEAULT(  format, ...) SPDLOG_LOGGER_CALL(Logger::instance().logger(),(spdlog::level::level_enum)Logger::instance().level(), format, ##__VA_ARGS__);
 #define MR_LOG_MORE(L, format, ...) SPDLOG_LOGGER_CALL(Logger::instance().logger(), (spdlog::level::level_enum)L, format,  ##__VA_ARGS__);
 
 #define MR_CHECK_TRACE(call, format,  ...)  { auto result = (call); if(result < 0){ MR_TRACE( format, ##__VA_ARGS__) } }
